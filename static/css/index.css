@@ -157,60 +157,66 @@ body {
 }
 
 .carousel-container {
-    width: 80%;
-    height: 376px;
+    position: relative;
+    width: 100%; 
+    height: 300px; /* Adjust this height to match whatever looks best on your page */
     background-image: url('../images/tiny_dataset.png'); 
     background-repeat: repeat-x;
-    background-position: 15px 0px;
+    background-position: 0px 0px;
     background-size: auto 100%;
     margin: 0 auto; 
     
-    /* Indicates to the user that they can click it */
     cursor: pointer; 
-    /* Smooth transition for the outline */
     transition: outline 0.2s ease, box-shadow 0.2s ease; 
 }
 
-/* This class gets applied by JavaScript when clicked */
 .carousel-container.is-active {
-    outline: 4px solid #3273dc; /* Bulma's primary blue color */
+    outline: 4px solid #3273dc; 
     box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
 }
 
+.multi-carousel-container.is-active {
+  outline: 4px solid #3273dc; 
+  box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
+}
+
 .multi-carousel-container {
-    width: 100%;
+    position: relative; 
+    width: 100%; 
+    
+    /* 1. Set this to whatever size you want the image to appear on your page */
     height: 300px; 
+    
     margin: 0 auto;
     overflow: hidden; 
     cursor: pointer;
     transition: outline 0.2s ease, box-shadow 0.2s ease;
 }
 
-.multi-carousel-container.is-active {
-    outline: 4px solid #3273dc; 
-    box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
-}
-
-/* THE MAGIC BULLET: Removing flexbox entirely */
 .multi-carousel-track {
+    position: absolute;
+    top: 0;
+    left: 0;
+    
+    /* Keeps the track exactly as tall as the container */
     height: 100%;
     
-    /* Forces images to stay on one horizontal line, acting like text */
     white-space: nowrap; 
-    
-    /* Removes the invisible HTML spaces between inline elements */
     font-size: 0; 
-    
     will-change: transform; 
 }
 
 .multi-carousel-track img {
-    height: 100%;
+    /* 2. THE FIX: Make the image scale perfectly to the container's vertical height */
+    height: 100%; 
+    
+    /* 3. The width calculates automatically, pushing the excess image off the right edge */
     width: auto;
     
-    /* Makes the images sit side-by-side without flexbox */
-    display: inline-block; 
+    /* Continues to prevent Bulma from squishing the image */
+    max-width: none !important; 
     
+    display: inline-block; 
     pointer-events: none; 
     padding-right: 2px; 
 }

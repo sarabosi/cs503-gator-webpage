@@ -74,31 +74,45 @@ $(document).ready(function() {
 document.addEventListener('DOMContentLoaded', () => {
 
     // ==========================================
-    // 1. SINGLE IMAGE CAROUSEL LOGIC
+    // 1. SINGLE IMAGE CAROUSEL LOGIC (With Auto-Scroll)
     // ==========================================
     const singleCarousel = document.getElementById('image-carousel');
     
-    // Only run this if the single carousel exists on the current page
     if (singleCarousel) {
         let currentPositionX = 0;
-        const scrollSpeed = 0.8;
-        let isScrollActive = false; 
+        const manualScrollSpeed = 0.8;
+        const autoScrollSpeed = 1.0; // Pixels to move per frame automatically
+        let isManualControl = false; 
 
+        // The automatic rolling animation function
+        function autoScrollSingle() {
+            if (!isManualControl) {
+                currentPositionX -= autoScrollSpeed;
+                singleCarousel.style.backgroundPosition = `${currentPositionX}px 0px`;
+            }
+            requestAnimationFrame(autoScrollSingle);
+        }
+
+        // Kick off the automatic rolling immediately
+        autoScrollSingle();
+
+        // Listen for clicks to toggle between auto and manual control
         singleCarousel.addEventListener('click', () => {
-            isScrollActive = !isScrollActive;
-            if (isScrollActive) {
+            isManualControl = !isManualControl;
+            if (isManualControl) {
                 singleCarousel.classList.add('is-active');
             } else {
                 singleCarousel.classList.remove('is-active');
             }
         });
 
+        // Handle mouse wheel scrolling when manual control is active
         singleCarousel.addEventListener('wheel', (event) => {
-            if (!isScrollActive) return; 
+            if (!isManualControl) return; 
 
             event.preventDefault();
             const scrollAmount = event.deltaY !== 0 ? event.deltaY : event.deltaX;
-            currentPositionX -= scrollAmount * scrollSpeed;
+            currentPositionX -= scrollAmount * manualScrollSpeed;
             singleCarousel.style.backgroundPosition = `${currentPositionX}px 0px`;
         }, { passive: false });
     }
