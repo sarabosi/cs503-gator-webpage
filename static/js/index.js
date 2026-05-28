@@ -121,17 +121,19 @@ document.addEventListener('DOMContentLoaded', () => {
     // ==========================================
     // 2. MULTI-IMAGE CAROUSEL LOGIC
     // ==========================================
-    const multiContainer = document.getElementById('multi-carousel');
-    const multiTrack = document.getElementById('multi-track');
+    const multiContainers = document.querySelectorAll('.multi-carousel-container');
 
-    // Only run this if the multi-carousel exists on the current page
-    if (multiContainer && multiTrack) {
-        const originalImages = Array.from(multiTrack.children);
+    multiContainers.forEach(container => {
+        // Find the track inside this specific container
+        const track = container.querySelector('.multi-carousel-track');
+        if (!track) return;
+
+        const originalImages = Array.from(track.children);
         
-        // Clone images
+        // Clone images for the infinite loop effect
         originalImages.forEach(img => {
             const clone = img.cloneNode(true);
-            multiTrack.appendChild(clone);
+            track.appendChild(clone);
         });
 
         let currentX = 0;
@@ -147,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
             });
         }
 
+        // Wait for images to load before calculating widths and starting
         Promise.all(originalImages.map(img => {
             if (img.complete) return Promise.resolve();
             return new Promise(resolve => img.addEventListener('load', resolve));
@@ -164,7 +167,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else if (currentX > 0) {
                 currentX -= originalSetWidth;
             }
-            multiTrack.style.transform = `translateX(${currentX}px)`;
+            track.style.transform = `translateX(${currentX}px)`;
         }
 
         function autoScroll() {
@@ -175,16 +178,16 @@ document.addEventListener('DOMContentLoaded', () => {
             requestAnimationFrame(autoScroll);
         }
 
-        multiContainer.addEventListener('click', () => {
+        container.addEventListener('click', () => {
             isManualControl = !isManualControl;
             if (isManualControl) {
-                multiContainer.classList.add('is-active');
+                container.classList.add('is-active');
             } else {
-                multiContainer.classList.remove('is-active');
+                container.classList.remove('is-active');
             }
         });
 
-        multiContainer.addEventListener('wheel', (event) => {
+        container.addEventListener('wheel', (event) => {
             if (!isManualControl) return; 
 
             event.preventDefault(); 
@@ -192,5 +195,5 @@ document.addEventListener('DOMContentLoaded', () => {
             currentX -= scrollAmount * manualScrollSpeed;
             enforceLoop(); 
         }, { passive: false });
-    }
+    });
 });

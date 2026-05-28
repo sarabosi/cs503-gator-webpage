@@ -507,32 +507,73 @@
               every pixel, taking as input two consecutive frames of a scene in motion. For reference, we show 
               an input example, alongside with the ground truth prediction and the GATOR prediction.
 
-              <div id="optical_flow_imgs" style="display: grid;
-                                                 grid-template-columns: repeat(2, 1fr);
-                                                 gap: 10px;"
-              >
-                <figure style="margin: 0;">
-                  <img src="assets/optical_flow/frame_0002_img.png" alt="Frame 1">
-                  <figcaption>Frame 1</figcaption>
-                </figure>
-                <figure style="margin: 0;">
-                  <img src="assets/optical_flow/frame_0003_img.png" alt="Frame 2">
-                  <figcaption>Frame 2</figcaption>
-                </figure>
-                <figure style="margin: 0;">
-                  <img src="assets/optical_flow/frame_0002_flow_gt.png" alt="Ground truth">
-                  <figcaption>Ground truth</figcaption>
-                </figure>
-                <figure style="margin: 0;">
-                  <img src="assets/optical_flow/frame_0002_flow_pred.png" alt="GATOR prediction">
-                  <figcaption>GATOR prediction</figcaption>
-                </figure>
+              <div id="optical-flow-carousel" class="multi-carousel-container" >
+                <div id="multi-carousel-track" class="multi-carousel-track">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0000.png" alt="Flow, frame 0000">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0001.png" alt="Flow, frame 0001">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0002.png" alt="Flow, frame 0002">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0003.png" alt="Flow, frame 0003">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0004.png" alt="Flow, frame 0004">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0005.png" alt="Flow, frame 0005">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0006.png" alt="Flow, frame 0006">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0007.png" alt="Flow, frame 0007">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0008.png" alt="Flow, frame 0008">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0009.png" alt="Flow, frame 0009">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0010.png" alt="Flow, frame 0010">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0011.png" alt="Flow, frame 0011">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0012.png" alt="Flow, frame 0012">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0013.png" alt="Flow, frame 0013">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0014.png" alt="Flow, frame 0014">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0015.png" alt="Flow, frame 0015">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0016.png" alt="Flow, frame 0016">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0017.png" alt="Flow, frame 0017">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0018.png" alt="Flow, frame 0018">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0019.png" alt="Flow, frame 0019">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0020.png" alt="Flow, frame 0020">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0021.png" alt="Flow, frame 0021">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0022.png" alt="Flow, frame 0022">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0023.png" alt="Flow, frame 0023">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0024.png" alt="Flow, frame 0024">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0025.png" alt="Flow, frame 0025">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0026.png" alt="Flow, frame 0026">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0027.png" alt="Flow, frame 0027">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0028.png" alt="Flow, frame 0028">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0029.png" alt="Flow, frame 0029">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0030.png" alt="Flow, frame 0030">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0031.png" alt="Flow, frame 0031">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0032.png" alt="Flow, frame 0032">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0033.png" alt="Flow, frame 0033">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0034.png" alt="Flow, frame 0034">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0035.png" alt="Flow, frame 0035">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0036.png" alt="Flow, frame 0036">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0037.png" alt="Flow, frame 0037">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0038.png" alt="Flow, frame 0038">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0039.png" alt="Flow, frame 0039">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0040.png" alt="Flow, frame 0040">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0041.png" alt="Flow, frame 0041">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0042.png" alt="Flow, frame 0042">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0043.png" alt="Flow, frame 0043">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0044.png" alt="Flow, frame 0044">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0045.png" alt="Flow, frame 0045">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0046.png" alt="Flow, frame 0046">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0047.png" alt="Flow, frame 0047">
+                  <img src="./static/images/optical_flow/carousels/flow_carousel_0048.png" alt="Flow, frame 0048">
+                </div>
               </div>
-              <br><br>
-              The following table shows the results obtained by finetuning the models on the MPI-Sintel + FlyingChairs datasets,
-              The reported performance refers to the MPI-Sintel test set, which contains frames from two different scenes unseen during training.
-
-              <img src="assets/optical_flow/tresults_table.png" style="width: 75%; display: block; margin: 0 auto;">
+              <em>
+                The picture is a carousel. Tap to activate scrolling.
+                The first row shows the input frames, the second row shows the 
+                ground truth for optical flow, the third row shows GATOR's prediction.
+              </em> 
+              <br>
+              <br>
+              <p>
+                The following table shows the results obtained by finetuning the models on the MPI-Sintel + FlyingChairs datasets,
+                The reported performance refers to the MPI-Sintel test set, 
+                which contains frames from two different scenes unseen during training.
+              </p>
+              
+              <img src="./static/images/optical_flow/results_table.png" style="width: 75%; display: block; margin: 0 auto;">
 
               The results show that GATOR is able to outperform all baselines, including CroCo, the toughest one.
               Surprisingly, GATOR's performance is better not only than CroCo pretrained with the same amount of compute (24 hours),
