@@ -269,14 +269,11 @@
         <div class="column is-full-width">
           <h2 class="title is-3" id="intro">I. Introduction</h2>
           <div class="content has-text-justified">
-            <p>
-
               Self-supervised learning has become a standard paradigm for learning visual representations 
               from unlabeled data. Methods such as DINO [3] and MAE [4] achieve strong results through self-distillation and masked image reconstruction, respectively. 
               Masked modeling has further been extended to two-view pretraining with CroCo [2], which shows strong performance on 3D vision tasks. 
               Another successful self-supervised paradigm is jigsaw puzzle solving, but its use for 3D computer vision remains largely unexplored.
-            </p>
-            <p>  
+             
               In this work, we investigate whether a two-view jigsaw objective can serve as an effective pretraining strategy 
               for 3D tasks such as image matching and optical flow. 
               Given two images of the same scene, we keep one view unchanged and shuffle the patches of the other. 
@@ -285,7 +282,7 @@
               Our approach is not formlauted as pixel-level prediction: instead, it formulates the pretraining objective as 
               a patch reordering problem. This objective still requires 3D understanding to be solved,
               but without wasting parameters for low-level detail reconstruction such as textures.
-            </p>
+            
           </div>
         </div>
       </div>
