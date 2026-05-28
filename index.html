@@ -448,7 +448,7 @@
         <div class="column is-full-width">
           <h2 class="title is-3" id="results">IV. Results</h2>
           <div class="content has-text-justified">
-            <p>
+            <>
               <h3 class="title is-4" id="method">IV-A. Optimization Details</h3>
               We render approximately 1.8M image pairs following CroCo 
               <a href="https://doi.org/10.48550/arXiv.2210.10716">[2]</a>. 
@@ -471,7 +471,42 @@
               <h3 class="title is-4" id="method">IV-C. Classification</h3>
               
               <h3 class="title is-4" id="method">IV-D. Optical Flow</h3>
-              
+              Optical flow requires to predict a 2D dense vector field assigning a displacement value to 
+              every pixel, taking as input two consecutive frames of a scene in motion. For reference, we show 
+              an input example, alongside with the ground truth prediction and the GATOR prediction.
+
+              <div id="optical_flow_imgs" style="display: grid;
+                                                 grid-template-columns: repeat(2, 1fr);
+                                                 gap: 10px;"
+              >
+                <figure style="margin: 0;">
+                  <img src="assets/optical_flow/frame_0002_img.png" alt="Frame 1">
+                  <figcaption>Frame 1</figcaption>
+                </figure>
+                <figure style="margin: 0;">
+                  <img src="assets/optical_flow/frame_0003_img.png" alt="Frame 2">
+                  <figcaption>Frame 2</figcaption>
+                </figure>
+                <figure style="margin: 0;">
+                  <img src="assets/optical_flow/frame_0002_flow_gt.png" alt="Ground truth">
+                  <figcaption>Ground truth</figcaption>
+                </figure>
+                <figure style="margin: 0;">
+                  <img src="assets/optical_flow/frame_0002_flow_pred.png" alt="GATOR prediction">
+                  <figcaption>GATOR prediction</figcaption>
+                </figure>
+              </div>
+              <br><br>
+              The following table shows the results obtained by finetuning the models on the MPI-Sintel + FlyingChairs datasets,
+              The reported performance refers to the MPI-Sintel test set, which contains frames from two different scenes unseen during training.
+
+              <img src="assets/optical_flow/tresults_table.png" style="width: 75%; display: block; margin: 0 auto;">
+
+              The results show that GATOR is able to outperform all baselines, including CroCo, the toughest one.
+              Surprisingly, GATOR's performance is better not only than CroCo pretrained with the same amount of compute (24 hours),
+              but even than the one of CroCo pretrained with double the compute time. This result shown the effectiveness of
+              GATOR's representations and their efficient transferability to this task.
+
               <h3 class="title is-4" id="method">IV-E. Relative Pose Regression</h3>
 
               <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
