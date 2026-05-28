@@ -477,7 +477,41 @@
               <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
 
               In this section we test whether the model utilizes the second view to solve the 
-              task, or relies purely on the shuffled view.
+              task, or relies purely on the shuffled view. We compare the model's performance 
+              when passing an actual reference image versus passing a zero image as a reference. 
+              If model's performance drops significantly when passing a zero image, it suggests 
+              that the model relies on the reference view to solve the task.
+
+              <div class="columns is-centered">
+              <div class="column is-three-quarters">
+                <div align="center" class="box">                
+                  <img src="./static/images/accuracy_vs_mask_ratio.png" width="50%"
+                  style="float: left;">
+        
+                  <img src="./static/images/mae_vs_mask_ratio.png" width="50%"
+                  style="float: right;">
+
+                  <h5 class="subtitle has-text-centered">
+                    <font size="-0.7">
+                      <span style="font-weight:normal">
+                        Left plot shows the accuracy of the model when predicting patches 
+                        positions using classification, while the right plot shows the mean 
+                        absolute error of the patch position prediction.
+                      </span>
+                    </font>
+                  </h5>
+                </div>
+              </div>
+            </div>
+              As one can observe from the plots above, passing reference view improves 
+              the model performance, especially when a medium portion (60%) of the shuffled 
+              patches are masked. One noticeable behaviour is that the performances are close 
+              when passing the full image, which can be explained by that fact that it is 
+              easier to determine the true positions of patches when all of them are available. 
+              Additionally, the performance drops when masking a large percentage of patches, 
+              which can be accounted by the fact that our model does not utilize RoPE for 
+              shuffled patches and it is harder to infer the relative positions to the 
+              reference view.
 
               <h3 class="title is-4" id="method">IV-G. Second View Utilization: Tiny Dataset</h3>
               
@@ -493,13 +527,11 @@
               it means that the model is able to utilize the second view and solve the task correctly.
             </br>
             </br>
-              <em>
-                Top row is shuffled image before shuffling, middle row is the reference view, 
-                and the bottom row is the shuffled view after shuffling.
-
-                The picture is a carousel. Tap to activate scrolling. 
-              </em>
-              <div id="image-carousel" class="carousel-container"></div>
+            <div class="columns is-centered">
+              <div class="column is-three-quarters">
+                <div align="center" class="box">
+                  
+                  <div id="image-carousel" class="carousel-container"></div>
               <script>
               {
                   const carousel = document.getElementById('image-carousel');
@@ -538,6 +570,21 @@
                   }, { passive: false });
               }
               </script>
+
+                  <h5 class="subtitle has-text-centered">
+                    <font size="-0.7">
+                      <span style="font-weight:normal">
+                        <em>The picture is a carousel. Tap to activate scrolling.</em></br>
+
+                        Top row is shuffled image before shuffling, middle row is the reference view, 
+                        and the bottom row is the shuffled view after shuffling.
+                      </span>
+                    </font>
+                    </h5>
+                </div>
+              </div>
+            </div>
+
                
             One can observe that the model correctly utilizes the second view and solves the task for 
             all 30 (15 dataset images give 30 reference views) images. Moreover, the prediction 
