@@ -167,14 +167,21 @@
         <div class="content has-text-justified">
           <p>
             <!-- TODO: Replace this abstract with your own project summary (3-5 sentences). -->
-            [Problem] Briefly describe the problem your project tackles and why it matters.
+            Current cross-view self-supervised methods for 3D vision rely on pixel reconstruction, 
+            which may overemphasize low-level appearance over the geometric correspondences needed 
+            for downstream tasks like relative pose and optical flow estimation. 
+            
           </p>
           <p>
-            [Approach] Explain your main idea, model, or system in one to two sentences.
+            We propose GATOR, 
+            a two-view jigsaw pretraining objective in which a Vision Transformer predicts the original 
+            positions of shuffled patches from one view by cross-attending to a clean reference view, 
+            recasting pretraining as discrete patch-position classification rather than reconstruction. 
           </p>
           <p>
-            [Results] Summarize key outcomes, such as quantitative improvements, qualitative
-            observations, and main conclusions.
+            Compared against CroCo, single-view jigsaw, and MAE baselines under matched compute, 
+            GATOR representations transfer better to downstream tasks, showing that geometry-centric 
+            objectives yield stronger correspondence features than pixel-level ones.
           </p>
         </div>
       </div>
