@@ -644,7 +644,20 @@
           <h2 class="title is-3" id="conclusion">V. Conclusion and Limitations</h2>
           <div class="content has-text-justified">
             <p>
-              The conclusion and limitations part of the report can be provided here
+              In this work, we have explored a new pretraining method for multi-view models based on jigsaw
+              puzzle solving. By avoiding pixel-level reconstruction as the pretraining objective, 
+              our method is able to generalize better on downstream tasks compared to single-view models 
+              (MAE, one-view jigsaw) and the multi-view CroCo, when trained with the same compute.
+              The model utilizes the second view to solve the pretraining task, confirming that the adopted
+              objective incentivices cross-view reasoning.
+              <br>
+              All the results we showed are obtained using a ViT-small scale. Whether our pretraining method
+              retains the same efficiency compared to the baselines at larger scales remains a question
+              for future works. Furthermore, due to the time constraints of the project it wasn't possible to 
+              run an ablation study to find optimal configuration parameters for all the baselines. Still, the 
+              decision of the adopted values is guided by commonsense, using the same hyperparameters for GATOR and CroCo.
+              However, tuning the parameters of each model individually would lead to a fairer comparison, 
+              which again awaits future exploration.
             </p>
           </div>
         </div>
