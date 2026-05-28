@@ -176,3 +176,41 @@ body {
     outline: 4px solid #3273dc; /* Bulma's primary blue color */
     box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
 }
+
+.multi-carousel-container {
+    width: 100%;
+    height: 300px; 
+    margin: 0 auto;
+    overflow: hidden; 
+    cursor: pointer;
+    transition: outline 0.2s ease, box-shadow 0.2s ease;
+}
+
+.multi-carousel-container.is-active {
+    outline: 4px solid #3273dc; 
+    box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
+}
+
+/* THE MAGIC BULLET: Removing flexbox entirely */
+.multi-carousel-track {
+    height: 100%;
+    
+    /* Forces images to stay on one horizontal line, acting like text */
+    white-space: nowrap; 
+    
+    /* Removes the invisible HTML spaces between inline elements */
+    font-size: 0; 
+    
+    will-change: transform; 
+}
+
+.multi-carousel-track img {
+    height: 100%;
+    width: auto;
+    
+    /* Makes the images sit side-by-side without flexbox */
+    display: inline-block; 
+    
+    pointer-events: none; 
+    padding-right: 2px; 
+}
