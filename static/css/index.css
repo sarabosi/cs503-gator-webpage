@@ -155,3 +155,24 @@ body {
 #interpolation-image-wrapper img {
   border-radius: 5px;
 }
+
+.carousel-container {
+    width: 80%;
+    height: 376px;
+    background-image: url('../images/tiny_dataset.png'); 
+    background-repeat: repeat-x;
+    background-position: 15px 0px;
+    background-size: auto 100%;
+    margin: 0 auto; 
+    
+    /* Indicates to the user that they can click it */
+    cursor: pointer; 
+    /* Smooth transition for the outline */
+    transition: outline 0.2s ease, box-shadow 0.2s ease; 
+}
+
+/* This class gets applied by JavaScript when clicked */
+.carousel-container.is-active {
+    outline: 4px solid #3273dc; /* Bulma's primary blue color */
+    box-shadow: 0 0 15px rgba(50, 115, 220, 0.4);
+}

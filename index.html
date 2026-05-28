@@ -323,6 +323,8 @@
           <div class="content has-text-justified">
             <img src="./static/images/method.png" width="40%"
               style="float: left; margin-right: 20px; margin-bottom: 10px;">
+
+            <h3 class="title is-4" id="method">III-A. Architecture</h3>
             <p>
               Gator is an encoder-decoder architecture.
               The encoder is equivalent to ViT-Small: it consists of 12 layers, a hidden
@@ -348,8 +350,90 @@
               instead of RoPE, since its coefficients for tokens at the same positions in two views 
               might correspond to different 3D locations. 
             </br>
-              Finally, the output head processes each token independently andpredicts either a position 
-              (logit or 2d coordinate) or opacity, depending on the loss used.
+              Finally, the output head processes each token independently and predicts either a 
+              position (logit or 2d coordinate) or opacity, depending on the loss used. 
+              We experiment with four different losses, which are described below. 
+            
+            <h3 class="title is-4" id="method">III-B. Jigsaw Objectives</h3>
+            </br>
+            
+            Let the input image has size $N \times N \times C$ and patch size $p$, yielding an 
+            $n \times n$ patch grid with $n = N/p$. In the description below we interchange 
+            2D in 2D grid and 1D positions a flattened 2D grid for simplicity.
+
+            </br>
+              <strong>Classification Loss</strong>
+              A linear head maps each token to a logit $\hat{y}_k = W h_k + b, \hat{y}_k \in \mathbb{R}^{n^2}$. 
+              For token $k$, the target $y_k$ is the index of its true position in the grid. 
+              We train with cross-entropy against the true position. 
+              To recover predictions we simply use $\arg\max_j \hat{y}_{k,j}$.
+
+              \[
+              \mathcal{L_1} = \operatorname{CrossEntropy}(\hat{y}_k, y_{k})
+              \]
+
+              <strong>Distance-Based Loss</strong>
+              A linear head maps each token to a normalized 2D coordinate: 
+              $\hat{u}_k = \tanh(W h_k + b), \hat{u}_k \in [-1,1]^2$. 
+              The target coordinate $u_k$ is the normalized true position of the patch. 
+              We train with MSE agains the true position. To recover the discrete position we 
+              map predictions from $[-1,1]$ to $[0,n-1]$ and round to the closest integer.
+
+              \[
+              \mathcal{L_2} = \operatorname{MSE}(\hat{u}_k, u_{k})
+              \]
+
+              <strong>Visual Loss</strong>
+              A linear head maps each token to $n^2$ values, followed by $\texttt{softmax}$: 
+              $o_k = \mathrm{softmax}(W h_k + b), o_k \in \mathbb{R}^{n^2}.$ Here, 
+              $o_{k,i}$ is the predicted <em>opacity</em> for placing patch $k$ at position $i$. 
+              Let $z_k \in \mathbb{R}^{p^2C}$ be the flattened ground-truth patch corresponding to 
+              token $k$. We softly place each patch at all positions and sum over patches:
+              \[
+              \hat{Z}_i
+              =
+              \sum_{k=1}^{n^2}
+              o_{k,i} z_k,
+              \qquad
+              \hat{Z} = \{Z_1, \dots, Z_{n^2}\},
+              \qquad
+              \hat{Z} \in \mathbb{R}^{n^2 \times p^2C}.
+              \]
+              The loss is MSE against the ground-truth patchified image $Z$. 
+              This objective naturally handles cases where visually identical patches 
+              are swapped, since such swaps do not increase the reconstruction error.
+
+              \[
+              \mathcal{L_3} = \operatorname{MSE}(\hat{Z}, Z)
+              \]
+
+              <strong>Similarity Loss</strong>
+              This loss is inspired by both cross-entropy loss and visual loss. 
+              We use classification, but do not penalize model if it predicts swapped position for visually similar patches.
+              A linear head maps each token to a logit $\hat{y}_k = W h_k + b, \hat{y}_k \in \mathbb{R}^{n^2}$. 
+              For token $k$ a prediction distribution is calculated as 
+              $p_{k}^j = \texttt{softmax}(-\frac{||\texttt{z}_k - \texttt{z}_j||_2^2}{\tau p^2 C})$, 
+              where $\tau$ is a hyperparameter, and $p^2 C$ is a normalization factor corresponding to the patch dimension.
+              The loss is a cross-entropy against the target distribution. 
+        
+              \[
+              \mathcal{L_4} = \operatorname{CrossEntropy}(\texttt{y}_{k}, \texttt{p}_{k})
+              \]
+
+            <h3 class="title is-4" id="method">III-C. Pre-training Details</h3>
+
+            Taking into account the similarity of the transformer, we actually do not 
+            shuffle patches of the shuffled view during training. Since we do not provide 
+            any kind of positional information to the model for this view, this does not simplify the task.
+          
+          </br>
+            Our experiments with Jigsaw model suggest that it is possible to achieve good 
+            performance without relying on the reference view. However, for efficient 
+            3D performance the reference view is crucial, therefore our model has to learn to 
+            utilize it. To encourage the model to do so, we randomly mask from 35% to 85% of 
+            the shuffled patches during training. This way, the model cannot rely on the shuffled 
+            view alone and has to learn to use the reference view to solve the task. In the 
+            appendix we show that this strategy is effective in encouraging the model to utilize the reference view.
             </p>
           </div>
         </div>
@@ -369,7 +453,101 @@
           <h2 class="title is-3" id="results">IV. Results</h2>
           <div class="content has-text-justified">
             <p>
-              The results part of the report can be provided here
+              <h3 class="title is-4" id="method">IV-A. Optimization Details</h3>
+              We render approximately 1.8M image pairs following CroCo 
+              <a href="https://doi.org/10.48550/arXiv.2210.10716">[2]</a>. 
+              We shard dataset into 181 shards and randomly split it into 4 validation 
+              and 177 training shards. Sharding enhances GPU utilization from 60% to 90%.
+
+              </br>
+              We train our model and competitors on this dataset with compute budget 
+              of 24 hours on a single V100 GPU. We tune learning rates of CroCo, 
+              Jigsaw and Gator on the validation set based on the pretraining task performance. 
+              We use learning rate of $1.5 \cdot 10^{-4}$ for CroCo, $10^{-4}$ for Gator-Classification 
+              and Jigsaw, and $3 \cdot 10^{-4}$ for Gator-Distance-Based. We use $\texttt{AdamW}$ 
+              with weight decay of $5\cdot 10^{-2}$ for CroCo and $10^{-2}$ for other models. 
+              We use a batch size of 128 and a patch size of 16 for all models. We use a 
+              cosine learning rate scheduler with 1 warmup epoch. 
+              We use FlashAttention and train in $\texttt{fp16}$ precision.
+
+              <h3 class="title is-4" id="method">IV-B. Jigsaw Solving </h3>
+
+              <h3 class="title is-4" id="method">IV-C. Classification</h3>
+              
+              <h3 class="title is-4" id="method">IV-D. Optical Flow</h3>
+              
+              <h3 class="title is-4" id="method">IV-E. Relative Pose Regression</h3>
+
+              <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
+
+              In this section we test whether the model utilizes the second view to solve the 
+              task, or relies purely on the shuffled view.
+
+              <h3 class="title is-4" id="method">IV-G. Second View Utilization: Tiny Dataset</h3>
+              
+              We collect a tiny dataset of 15 images. For each image $x_1$ there is a 
+              feature that we can swap some of its patches and the resulting image $x_2$ still looks 
+              realistic and $x_1 \neq x_2$. 
+              We shuffle patches of $x_1$ to get a shuffled view $x_s$ and then we pass images to the model.
+              If we get the results
+              \[
+              \operatorname{Gator}(x_s, x_1) \approx x_1, \qquad
+              \operatorname{Gator}(x_s, x_2) \approx x_2
+              \]
+              it means that the model is able to utilize the second view and solve the task correctly.
+            </br>
+            </br>
+              <em>
+                Top row is shuffled image before shuffling, middle row is the reference view, 
+                and the bottom row is the shuffled view after shuffling.
+
+                The picture is a carousel. Tap to activate scrolling. 
+              </em>
+              <div id="image-carousel" class="carousel-container"></div>
+              <script>
+              {
+                  const carousel = document.getElementById('image-carousel');
+                  let currentPositionX = 0;
+                  const scrollSpeed = 0.8;
+                  
+                  // NEW: Variable to track if scrolling is turned on or off
+                  let isScrollActive = false; 
+
+                  // NEW: Listen for clicks to toggle the state
+                  carousel.addEventListener('click', () => {
+                      isScrollActive = !isScrollActive; // Flip true to false, or false to true
+                      
+                      // Add or remove the visual highlight
+                      if (isScrollActive) {
+                          carousel.classList.add('is-active');
+                      } else {
+                          carousel.classList.remove('is-active');
+                      }
+                  });
+
+                  carousel.addEventListener('wheel', (event) => {
+                      // NEW: If the carousel hasn't been clicked, do nothing and let the page scroll normally
+                      if (!isScrollActive) {
+                          return; 
+                      }
+
+                      // If it IS active, stop the page from scrolling vertically
+                      event.preventDefault();
+
+                      // Handle the image scrolling
+                      const scrollAmount = event.deltaY !== 0 ? event.deltaY : event.deltaX;
+                      currentPositionX -= scrollAmount * scrollSpeed;
+                      carousel.style.backgroundPosition = `${currentPositionX}px 0px`;
+                      
+                  }, { passive: false });
+              }
+              </script>
+               
+            One can observe that the model correctly utilizes the second view and solves the task for 
+            all 30 (15 dataset images give 30 reference views) images. Moreover, the prediction 
+            accuracy is more than 98% for swapped patches. This suggests that the model learns 
+            to utilize the second view to solve the task, rather than relying on shortcuts 
+            in the shuffled view.  
             </p>
           </div>
         </div>
