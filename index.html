@@ -152,18 +152,6 @@
     </div>
   </section>
 
-  <!-- HuggingFace Project Demo -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Demo</h2>
-
-      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="80%" height="500"
-        style="display: block; margin: 0 auto;">
-      </iframe>
-
-    </div>
-  </section>
-
   <!------------------------------------------------------------------------->
 
   <!--TODO: ABSTRACT OF THE PROJECT -->
@@ -506,8 +494,11 @@
             
               The model achieves 88.9% accuracy in predicting the true positions of patches. 
               We show some examples of the model's predictions in the carousel above. 
-              The Jigsaw model achieves accuracy of ???%.
-              
+              The Jigsaw model achieves accuracy of 88.2%, which is a bit lower than Gator,
+              but competitive. This suggests that even without utilizing the reference 
+              view the model is able to solve jigsaw puzzles to a good extent. 
+              Therefore, it highlights the need to encourage the model to utilize the 
+              reference view to learn efficient 3D representations,  
 
               <h3 class="title is-4" id="method">IV-C. Classification</h3>
               
@@ -837,6 +828,20 @@
         </div>
       </div>
       <!--/ Visual Items. -->
+    </div>
+  </section>
+
+  <!------------------------------------------------------------------------->
+
+  <!-- HuggingFace Project Demo -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered">Demo</h2>
+
+      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="80%" height="500"
+        style="display: block; margin: 0 auto;">
+      </iframe>
+
     </div>
   </section>
 
