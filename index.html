@@ -318,114 +318,128 @@
 
             <h3 class="title is-4" id="method">III-A. Architecture</h3>
             <p>
-              Gator is an encoder-decoder architecture.
-              The encoder is equivalent to ViT-Small: it consists of 12 layers, a hidden
-              dimension of 384 and 6 attention heads.
-              The decoder is 6 layer transformer with same hidden dimension and
-              attention heads as the encoder.
+              Gator follows an encoder-decoder architecture. The encoder is equivalent to
+              ViT-Small, consisting of 12 layers, a hidden dimension of 384, and 6 attention
+              heads. The decoder is a 6-layer Transformer with the same hidden dimension and
+              number of attention heads as the encoder.
 
-              Following <a href="https://doi.org/10.48550/arXiv.2309.16588">[1]</a> we add 
+              Following <a href="https://doi.org/10.48550/arXiv.2309.16588">[1]</a>, we add
               four learnable register tokens.
             </br>
-              Two different views of the same scene are passed to the model &mdash;
-              one with shuffled patches (of size 16x16) called <em>shuffled</em> and the other
-              one is called <em>reference</em>. The model predicts how to reorder the shuffled
-              view to match the reference one.
+              Two different views of the same scene are passed to the model: one view, called
+              <em>shuffled</em>, contains shuffled patches of size 16&times;16, while the other
+              view is used as the <em>reference</em>. The model predicts how to reorder the
+              shuffled view so that it matches the reference view.
             </br>
-              We firstly patchify both views and linearly project them to the hidden dimension.
-              Then, we concatenate the register tokens with the patchs tokens and process views 
-              using the same encoder. We turn off RoPE in the encoder of the shuffled view to 
-              prevent the model from predicting position information based on RoPE coefficients.
+              We first patchify both views and linearly project the resulting patch tokens to
+              the hidden dimension. We then concatenate the register tokens with the patch
+              tokens and process both views using the same encoder. For the shuffled view, we
+              disable RoPE in the encoder to prevent the model from inferring positional
+              information directly from the RoPE coefficients.
             </br>
-              Then the decoder processes the shuffled view tokens as queries and the reference view 
-              tokens as context. We add sinusoidal positional embeddings to the reference view tokens 
-              instead of RoPE, since its coefficients for tokens at the same positions in two views 
-              might correspond to different 3D locations. 
+              The decoder then processes the shuffled-view tokens as queries and the
+              reference-view tokens as context. We add sinusoidal positional embeddings to
+              the reference-view tokens instead of using RoPE, since tokens at the same
+              positions in the two views may correspond to different 3D locations.
             </br>
-              Finally, the output head processes each token independently and predicts either a 
-              position (logit or 2d coordinate) or opacity, depending on the loss used. 
-              We experiment with four different losses, which are described below. 
+              Finally, the output head processes each token independently and predicts either
+              a position, represented as logits or a 2D coordinate, or opacity, depending on
+              the loss function used. We experiment with four different losses, which are
+              described below.
+            </p>
+
             
             <h3 class="title is-4" id="method">III-B. Jigsaw Objectives</h3>
-            </br>
+            <p> 
+              Let the input image have size \(N \times N \times C\), and let 
+              the patch size be \(p\). This yields an \(n \times n\) patch grid, 
+              where \(n = N / p\). In the description below, we use 2D grid 
+              positions and their corresponding 1D indices in the flattened grid interchangeably 
+              for simplicity. 
+            </p>
+
+            <p> 
+              <strong>Classification Loss.</strong> 
+              A linear head maps each token representation to logits over all 
+              possible patch positions: 
+              \[ \hat{y}_k = W h_k + b, \qquad \hat{y}_k \in \mathbb{R}^{n^2}. \] 
+              For token \(k\), the target \(y_k\) is the index of its true position in 
+              the grid. We train the model using cross-entropy loss against the 
+              true position. At inference time, we recover the predicted position 
+              by taking \(\arg\max_j \hat{y}_{k,j}\). 
+              \[ \mathcal{L}_1 = \operatorname{CrossEntropy}(\hat{y}_k, y_k). \] 
+            </p> 
             
-            Let the input image has size $N \times N \times C$ and patch size $p$, yielding an 
-            $n \times n$ patch grid with $n = N/p$. In the description below we interchange 
-            2D in 2D grid and 1D positions a flattened 2D grid for simplicity.
-
-            </br>
-              <strong>Classification Loss</strong>
-              A linear head maps each token to a logit $\hat{y}_k = W h_k + b, \hat{y}_k \in \mathbb{R}^{n^2}$. 
-              For token $k$, the target $y_k$ is the index of its true position in the grid. 
-              We train with cross-entropy against the true position. 
-              To recover predictions we simply use $\arg\max_j \hat{y}_{k,j}$.
-
-              \[
-              \mathcal{L_1} = \operatorname{CrossEntropy}(\hat{y}_k, y_{k})
-              \]
-
-              <strong>Distance-Based Loss</strong>
-              A linear head maps each token to a normalized 2D coordinate: 
-              $\hat{u}_k = \tanh(W h_k + b), \hat{u}_k \in [-1,1]^2$. 
-              The target coordinate $u_k$ is the normalized true position of the patch. 
-              We train with MSE agains the true position. To recover the discrete position we 
-              map predictions from $[-1,1]$ to $[0,n-1]$ and round to the closest integer.
-
-              \[
-              \mathcal{L_2} = \operatorname{MSE}(\hat{u}_k, u_{k})
-              \]
-
-              <strong>Visual Loss</strong>
-              A linear head maps each token to $n^2$ values, followed by $\texttt{softmax}$: 
-              $o_k = \mathrm{softmax}(W h_k + b), o_k \in \mathbb{R}^{n^2}.$ Here, 
-              $o_{k,i}$ is the predicted <em>opacity</em> for placing patch $k$ at position $i$. 
-              Let $z_k \in \mathbb{R}^{p^2C}$ be the flattened ground-truth patch corresponding to 
-              token $k$. We softly place each patch at all positions and sum over patches:
-              \[
-              \hat{Z}_i
-              =
-              \sum_{k=1}^{n^2}
-              o_{k,i} z_k,
-              \qquad
-              \hat{Z} = \{Z_1, \dots, Z_{n^2}\},
-              \qquad
-              \hat{Z} \in \mathbb{R}^{n^2 \times p^2C}.
-              \]
-              The loss is MSE against the ground-truth patchified image $Z$. 
-              This objective naturally handles cases where visually identical patches 
-              are swapped, since such swaps do not increase the reconstruction error.
-
-              \[
-              \mathcal{L_3} = \operatorname{MSE}(\hat{Z}, Z)
-              \]
-
-              <strong>Similarity Loss</strong>
-              This loss is inspired by both cross-entropy loss and visual loss. 
-              We use classification, but do not penalize model if it predicts swapped position for visually similar patches.
-              A linear head maps each token to a logit $\hat{y}_k = W h_k + b, \hat{y}_k \in \mathbb{R}^{n^2}$. 
-              For token $k$ a prediction distribution is calculated as 
-              $p_{k}^j = \texttt{softmax}(-\frac{||\texttt{z}_k - \texttt{z}_j||_2^2}{\tau p^2 C})$, 
-              where $\tau$ is a hyperparameter, and $p^2 C$ is a normalization factor corresponding to the patch dimension.
-              The loss is a cross-entropy against the target distribution. 
-        
-              \[
-              \mathcal{L_4} = \operatorname{CrossEntropy}(\texttt{y}_{k}, \texttt{p}_{k})
-              \]
+            <p> 
+              <strong>Distance-Based Loss.</strong> 
+              A linear head maps each token representation to a normalized 2D coordinate: 
+              \[ \hat{u}_k = \tanh(W h_k + b), \qquad \hat{u}_k \in [-1, 1]^2. \] 
+              The target coordinate \(u_k\) is the normalized true position of 
+              the patch. We train the model using mean squared error against 
+              the target coordinate. To recover a discrete position, we map predictions 
+              from \([-1,1]\) to \([0,n-1]\) and round each coordinate to the nearest 
+              integer. 
+              \[ \mathcal{L}_2 = \operatorname{MSE}(\hat{u}_k, u_k). \] 
+            </p> 
+            <p> 
+              <strong>Visual Loss.</strong> 
+              A linear head maps each token representation to \(n^2\) values, followed 
+              by a softmax: 
+              \[ o_k = \operatorname{softmax}(W h_k + b), \qquad o_k \in \mathbb{R}^{n^2}. \] 
+              Here, \(o_{k,i}\) denotes the predicted <em>opacity</em> for 
+              placing patch \(k\) at position \(i\). Let \(z_k \in \mathbb{R}^{p^2 C}\) 
+              be the flattened ground-truth patch corresponding to token \(k\). 
+              We softly place each patch at all possible positions and sum over patches: 
+              \[ 
+              \hat{Z}_i = \sum_{k=1}^{n^2} o_{k,i} z_k, \qquad 
+              \hat{Z} = \{\hat{Z}_1, \dots, \hat{Z}_{n^2}\}, \qquad 
+              \hat{Z} \in \mathbb{R}^{n^2 \times p^2 C}. 
+              \] 
+              The loss is the mean squared error between the reconstructed patchified image 
+              \(\hat{Z}\) and the ground-truth patchified image \(Z\): 
+              \[ \mathcal{L}_3 = \operatorname{MSE}(\hat{Z}, Z). \] 
+              This objective naturally handles cases in which visually identical patches 
+              are swapped, since such swaps do not increase the reconstruction error. 
+            </p> 
+            <p> 
+              <strong>Similarity Loss.</strong> 
+              This loss combines ideas from the classification and visual losses. 
+              As in the classification loss, a linear head maps each token representation 
+              to logits over all patch positions: 
+              \[ \hat{y}_k = W h_k + b, \qquad \hat{y}_k \in \mathbb{R}^{n^2}. \] 
+              However, instead of penalizing all incorrect positions equally, we 
+              allow the model to assign probability mass to visually similar patches. 
+              For token \(k\), we define a soft target distribution over positions as 
+              \[ 
+              q_k^j = \operatorname{softmax}_j \left( -\frac{\lVert z_k - z_j \rVert_2^2}{\tau p^2 C} \right), 
+              \] 
+              where \(\tau\) is a temperature hyperparameter and \(p^2 C\) normalizes 
+              by the patch dimensionality. The model is then trained with cross-entropy 
+              against this target distribution: 
+              \[ 
+              \mathcal{L}_4 = \operatorname{CrossEntropy}(\hat{y}_k, q_k). 
+              \] 
+            </p>
 
             <h3 class="title is-4" id="method">III-C. Pre-training Details</h3>
 
-            Taking into account the similarity of the transformer, we actually do not 
-            shuffle patches of the shuffled view during training. Since we do not provide 
-            any kind of positional information to the model for this view, this does not simplify the task.
-          
-          </br>
-            Our experiments with Jigsaw model suggest that it is possible to achieve good 
-            performance without relying on the reference view. However, for efficient 
-            3D performance the reference view is crucial, therefore our model has to learn to 
-            utilize it. To encourage the model to do so, we randomly mask from 35% to 85% of 
-            the shuffled patches during training. This way, the model cannot rely on the shuffled 
-            view alone and has to learn to use the reference view to solve the task. In the 
-            appendix we show that this strategy is effective in encouraging the model to utilize the reference view.
+            <p> 
+              Due to the permutation invariance of the Transformer architecture, we 
+              do not explicitly shuffle the patches of the shuffled view during 
+              training. Since no positional information is provided for this view, 
+              omitting the explicit shuffle does not simplify the task. 
+            </p> 
+            <p> 
+              Our experiments with the Single View Jigsaw model suggest that strong performance 
+              can be achieved without relying on the reference view. However, 
+              the reference view is crucial for strong 3D performance, and 
+              therefore our model must learn to use it effectively. To 
+              encourage this behavior, we randomly mask between 35% and 85% 
+              of the shuffled-view patches during training. As a result, 
+              the model cannot rely solely on the shuffled view and 
+              must instead learn to use the reference view to solve the 
+              task. In the appendix, we show that this strategy effectively 
+              encourages the model to utilize the reference view.
             </p>
           </div>
         </div>
@@ -444,23 +458,29 @@
         <div class="column is-full-width">
           <h2 class="title is-3" id="results">IV. Results</h2>
           <div class="content has-text-justified">
-            <>
-              <h3 class="title is-4" id="method">IV-A. Optimization Details</h3>
-              We render approximately 1.8M image pairs following CroCo 
-              <a href="https://doi.org/10.48550/arXiv.2210.10716">[2]</a>. 
-              We shard dataset into 181 shards and randomly split it into 4 validation 
-              and 177 training shards. Sharding enhances GPU utilization from 60% to 90%.
+              
+          <h3 class="title is-4" id="method">IV-A. Optimization Details</h3>
 
-              </br>
-              We train our model and competitors on this dataset with compute budget 
-              of 24 hours on a single V100 GPU. We tune learning rates of CroCo, 
-              Jigsaw and Gator on the validation set based on the pretraining task performance. 
-              We use learning rate of $1.5 \cdot 10^{-4}$ for CroCo, $10^{-4}$ for Gator-Classification 
-              and Jigsaw, and $3 \cdot 10^{-4}$ for Gator-Distance-Based. We use $\texttt{AdamW}$ 
-              with weight decay of $5\cdot 10^{-2}$ for CroCo and $10^{-2}$ for other models. 
-              We use a batch size of 128 and a patch size of 16 for all models. We use a 
-              cosine learning rate scheduler with 1 warmup epoch. 
-              We use FlashAttention and train in $\texttt{fp16}$ precision.
+          <p>
+            Following CroCo <a href="https://doi.org/10.48550/arXiv.2210.10716">[2]</a>,
+            we render approximately 1.8M image pairs. We split the dataset into 181 shards
+            and randomly allocate 177 shards for training and 4 shards for validation.
+            Sharding improves GPU utilization from 60% to 90%.
+          </p>
+
+          <p>
+            We train our model and all competitors on this dataset using a fixed compute
+            budget of 24 hours on a single V100 GPU. We tune the learning rates of CroCo,
+            Jigsaw, and Gator on the validation set according to pre-training task
+            performance. We use a learning rate of \(1.5 \cdot 10^{-4}\) for CroCo,
+            \(10^{-4}\) for Gator-Classification and Jigsaw, and \(3 \cdot 10^{-4}\) for
+            Gator-Distance-Based. We use \(\texttt{AdamW}\) with a weight decay of
+            \(5 \cdot 10^{-2}\) for CroCo and \(10^{-2}\) for the other models. All models
+            are trained with a batch size of 128 and a patch size of 16. We use a cosine
+            learning rate schedule with one warm-up epoch. Training is performed in
+            \(\texttt{fp16}\) precision with FlashAttention.
+          </p>
+
 
               <h3 class="title is-4" id="method">IV-B. Jigsaw Solving </h3>
               
@@ -492,13 +512,16 @@
               </br>
               </br>
             
-              The model achieves 88.9% accuracy in predicting the true positions of patches. 
-              We show some examples of the model's predictions in the carousel above. 
-              The Jigsaw model achieves accuracy of 88.2%, which is a bit lower than Gator,
-              but competitive. This suggests that even without utilizing the reference 
-              view the model is able to solve jigsaw puzzles to a good extent. 
-              Therefore, it highlights the need to encourage the model to utilize the 
-              reference view to learn efficient 3D representations,  
+              <p>
+                The model achieves an accuracy of 88.9% in predicting the true patch positions.
+                Examples of the model's predictions are shown in the carousel above. The Jigsaw
+                model achieves an accuracy of 88.2%, which is slightly lower than Gator but
+                remains competitive. This result suggests that, even without using the
+                reference view, the model can solve jigsaw puzzles to a large extent. It also
+                highlights the need to encourage the model to rely on the reference view in
+                order to learn representations efficient for downstream 3D tasks.
+              </p>
+
 
               <h3 class="title is-4" id="method">IV-C. Classification</h3>
               
@@ -584,11 +607,15 @@
 
               <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
 
-              In this section we test whether the model utilizes the second view to solve the 
-              task, or relies purely on the shuffled view. We compare the model's performance 
-              when passing an actual reference image versus passing a zero image as a reference. 
-              If model's performance drops significantly when passing a zero image, it suggests 
-              that the model relies on the reference view to solve the task.
+              <p> 
+                In this section, we evaluate whether the model uses the second view 
+                to solve the task or instead relies solely on the shuffled view. 
+                We compare performance when the model is given the true reference 
+                image against performance when the reference image is replaced 
+                with a zero image. A substantial performance drop in the latter 
+                setting would indicate that the model relies on the reference view 
+                to solve the task. 
+              </p>
 
               <div class="columns is-centered">
               <div class="column is-three-quarters">
@@ -611,32 +638,43 @@
                 </div>
               </div>
             </div>
-              As one can observe from the plots above, passing reference view improves 
-              the model performance, especially when a medium portion (60%) of the shuffled 
-              patches are masked. One noticeable behaviour is that the performances are close 
-              when passing the full image, which can be explained by that fact that it is 
-              easier to determine the true positions of patches when all of them are available. 
-              Additionally, the performance drops when masking a large percentage of patches, 
-              which can be accounted by the fact that our model does not utilize RoPE for 
-              shuffled patches and it is harder to infer the relative positions to the 
+              
+            <p> 
+              As shown in the plots above, providing the true reference view
+              improves model performance, particularly when a moderate fraction
+              of the shuffled patches is masked. The largest improvement is
+              observed when 60% of the shuffled patches are masked. One notable
+              behavior is that the two settings yield similar performance when
+              the full shuffled image is available. This can be explained by the
+              fact that patch positions are easier to infer when all shuffled
+              patches are present. In contrast, performance drops when a large
+              fraction of patches is masked. This is likely because our model
+              does not use RoPE for shuffled-view patches, making it more
+              difficult to infer their relative positions with respect to the
               reference view.
+              </p>
 
               <h3 class="title is-4" id="method">IV-G. Second View Utilization: Tiny Dataset</h3>
+              <p> 
+                We construct a small dataset of 15 images, sampled from the
+                rendered dataset to keep the domain consistent. We use ChatGPT
+                to edit the images, followed by additional manual refinement in
+                GIMP. For each image \(x_1\), we introduce a modification such
+                that swapping a subset of its patches produces a second image
+                \(x_2\) that still appears realistic, while satisfying \(x_1
+                \neq x_2\). We then shuffle the patches of \(x_1\) to obtain the
+                shuffled view \(x_s\) and pass the images to the model. If the
+                model produces 
+                \[ 
+                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_1) \approx x_1,
+                \qquad 
+                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_2) \approx x_2, 
+                \] 
+                this
+                indicates that it can use the second view to resolve the
+                ambiguity and correctly solve the task. 
+              </p>
               
-              We collect a tiny dataset of 15 images. We take images from the rendered dataset 
-              to keep the domain the same. We use ChatGPT to edit images followed by additional 
-              editing in GIMP. For each image $x_1$ there is a 
-              feature that we can swap some of its patches and the resulting image $x_2$ still looks 
-              realistic and $x_1 \neq x_2$. 
-              We shuffle patches of $x_1$ to get a shuffled view $x_s$ and then we pass images to the model.
-              If we get the results
-              \[
-              \operatorname{Gator}(x_s, x_1) \approx x_1, \qquad
-              \operatorname{Gator}(x_s, x_2) \approx x_2
-              \]
-              it means that the model is able to utilize the second view and solve the task correctly.
-            </br>
-            </br>
             <div class="columns is-centered">
               <div class="column is-three-quarters">
                 <div align="center" class="box">
@@ -657,13 +695,46 @@
               </div>
             </div>
                
-            One can observe that the model correctly utilizes the second view and solves the task for 
-            all 30 (15 dataset images give 30 reference views) images. Moreover, the prediction 
-            accuracy is more than 98% for swapped patches. This suggests that the model learns 
-            to utilize the second view to solve the task, rather than relying on shortcuts 
-            in the shuffled view.  
+            <p> 
+              We observe that the model correctly uses the second view and
+              solves the task for all 30 reference views, corresponding to two
+              reference views for each of the 15 dataset images. Moreover, the
+              prediction accuracy exceeds 98% on the swapped patches. These
+              results suggest that the model learns to use the second view to
+              solve the task, rather than relying on shortcuts.
+            </p>
             
-            <h3 class="title is-4" id="method">IV-H. Attention Maps </h3>
+            <h3 class="title is-4" id="method">IV-H. Cross-Attention Maps </h3>
+
+            <div id="multi-carousel" class="multi-carousel-container" >
+                <div id="multi-track" class="multi-carousel-track">
+                  <img src="./static/images/matched_combined/img_000.png" alt="Matches 000">
+                  <img src="./static/images/matched_combined/img_001.png" alt="Matches 001">
+                  <img src="./static/images/matched_combined/img_002.png" alt="Matches 002">
+                  <img src="./static/images/matched_combined/img_003.png" alt="Matches 003">
+                  <img src="./static/images/matched_combined/img_004.png" alt="Matches 004">
+                  <img src="./static/images/matched_combined/img_005.png" alt="Matches 005">
+                  <img src="./static/images/matched_combined/img_006.png" alt="Matches 006">
+                  <img src="./static/images/matched_combined/img_007.png" alt="Matches 007">
+                </div>
+              </div>
+              <em>
+                Matching between patches. In each pair one image is shuffled
+                before shuffling and the other is the reference view.
+              </em>
+              </br>
+              </br>
+              <p>
+                We analyze the cross-attention maps in the model decoder. Surprisingly, we find
+                that the model learns to establish correspondences between patches in the
+                shuffled and reference views without any explicit correspondence supervision.
+                For each token in the shuffled view, we identify the token in the reference
+                view with the highest attention weight and visualize the resulting matches in
+                the carousel above. We use the output of decoder layer 4 for this analysis, as
+                the outputs of later layers do not exhibit clear matching patterns, likely
+                because they focus more on task prediction than on cross-view reasoning.
+              </p>
+
             
             </p>
           </div>
@@ -890,9 +961,9 @@
   <!-- HuggingFace Project Demo -->
   <section class="section">
     <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered">Demo</h2>
+      <h2 class="title is-3 has-text-centered"> <a href="https://huggingface.co/spaces/sevashasla2/gator"> 🤗 Demo </a> </h2>
 
-      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="80%" height="500"
+      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="100%" height="500"
         style="display: block; margin: 0 auto;">
       </iframe>
 
@@ -961,11 +1032,16 @@
             
             <h3 class="title is-4" id="method">A. Ablation on Jigsaw Objective </h3>
             
-            We train the model using various jigsaw objectives described in section III-B, 
-            and compare their performance on the pretraining task. Due to the computational constraints, 
-            we train the model of size ViT-Tiny for 12 hours on a single V100 GPU. We use the same 
-            training setup as described in section IV-A. We tune the learning rates for each objective 
-            on the validation set, and use the best learning rate for training the final model.
+            <p> 
+              We train the model using the different jigsaw objectives
+              described in Section III-B and compare their performance on the
+              pretraining task. Due to computational constraints, we use a
+              ViT-Tiny model and train each variant for 12 hours on a single
+              V100 GPU. We follow the same training setup as described in
+              Section IV-A. For each objective, we tune the learning rate on the
+              validation set and use the best-performing learning rate to train
+              the final model.
+            </p>
 
             <div class="columns is-centered">
               <div class="column is-three-quarters">
@@ -974,10 +1050,13 @@
                   <h5 class="subtitle has-text-centered">
                     <font size="-0.7">
                       <span style="font-weight:normal">
-                        Plots show the comparison of different jigsaw objectives. The left plot shows the accuracy 
-                        of the model when predicting patches positions using classification, while the right 
-                        plot shows the mean squared error between real image and the image reconstructed using 
-                        predicted patch positions or opacities. We also provide a Jigsaw model performance as a reference.
+                        Comparison of different jigsaw objectives. The left plot
+                        shows the accuracy of predicting patch positions using
+                        classification, while the right plot shows the mean
+                        squared error between the ground-truth image and the
+                        image reconstructed from the predicted patch positions
+                        or opacities. We also report the performance of the
+                        Jigsaw model as a reference.
                       </span>
                     </font>
                   </h5>
@@ -985,29 +1064,39 @@
               </div>
             </div>
 
-            Regardless of learning rate, the model trained with visual loss does not converge in 12 hours 
-            and achieves the worst performance, which we attribute this to the greater complexity of 
-            the visualization objective, which requires the model to infer both patch positions and 
-            their contributions to the reconstructed image.
-          </br>
-            The classification achieves the best accuracy and MSE, so we proceed with this 
-            objective in our finetuning experiments. 
-            The distance-based objective achitecture achieves the second best performance, 
-            which suggests that it can be a viable alternative to the classification objective.
-            One positive aspect of the distance-based objective is that it has a relation between classes,
-            such that nearby positions are more similar than distance positions.
-            The similarity loss achieves better performance than the visual loss, but worse than 
-            the other two objectives, which can be because we change the distribution of 
-            the target from one-hot and actually make the task more difficult. 
+            <p> 
+              Regardless of the learning rate, the model trained with the visual
+              loss does not converge within 12 hours and achieves the worst
+              performance. We attribute this to the greater complexity of the
+              visual objective, which requires the model to infer both patch
+              positions and their contributions to the reconstructed image. 
+            </p>
+
+            <p> 
+              The classification objective achieves the best accuracy and MSE,
+              so we use it in our finetuning experiments. The distance-based
+              objective achieves the second-best performance, suggesting that it
+              may be a viable alternative to the classification objective. One
+              advantage of the distance-based objective is that it encodes a
+              notion of similarity between positions: nearby positions are
+              treated as more similar than distant ones. The similarity loss
+              performs better than the visual loss but worse than the
+              classification and distance-based objectives. This may be because
+              replacing the one-hot target with a soft target distribution makes
+              the task more difficult. 
+            </p>
 
             <h3 class="title is-4" id="method">B. Ablation on Masking Ratios </h3>
 
-            We perform a small ablation study to test the effectiveness of our 
-            strategy of randomly masking a portion of shuffled patches during training. 
-            We train two models with the same architecture and training setup, but one model 
-            is trained with around 60% (model-60%) of shuffled patches masked out, while the other model is 
-            trained with around 15% (model-15%) masking. We then compare the performance of these two 
-            models using the same evaluation strategy as in section IV-F. 
+            <p> We perform a small ablation study to evaluate the effectiveness
+            of randomly masking a portion of the shuffled-view patches during
+            training. We train two models with the same architecture and
+            training setup, varying only the masking ratio. One model is trained
+            with approximately 60% of shuffled-view patches masked out, referred
+            to as <em>model-60%</em>, while the other is trained with
+            approximately 15% masking, referred to as <em>model-15%</em>. We
+            then compare their performance using the same evaluation strategy as
+            in Section IV-F. </p>
           
             <div class="columns is-centered">
               <div class="column is-three-quarters">
@@ -1016,24 +1105,36 @@
                   <h5 class="subtitle has-text-centered">
                     <font size="-0.7">
                       <span style="font-weight:normal">
-                        Plots shows the comparison when passing the reference view vs passing a zero 
-                        image as a reference for different masking ratios. The left plot shows the accuracy 
-                        of the model trained with around 60% of shuffled patches masked out, while the right 
-                        plot shows the accuracy of the model trained with around 15% masking during training.
+                        Comparison between using the true reference view and
+                        replacing the reference view with a zero image for
+                        different training masking ratios. The left plot shows
+                        the accuracy of the model trained with approximately 60%
+                        of shuffled-view patches masked out, while the right
+                        plot shows the accuracy of the model trained with
+                        approximately 15% masking.
                       </span>
                     </font>
                   </h5>
                 </div>
               </div>
             </div>
-          </br>
-            The figure shows that the w and w/o zeroing curves are closer for the model-15%. 
-            We further run the evaluation using Tiny Dataset, and observe that model-15% achieves
-            around 91% accuracy for swapped patches, while model-60% achieves around 98% accuracy. 
+          <p> 
+            The figure shows that the performance curves with and without
+            zeroing the reference view are closer for <em>model-15%</em>. We
+            further evaluate both models on the Tiny Dataset and observe that
+            <em>model-15%</em> achieves approximately 91% accuracy on swapped
+            patches, whereas <em>model-60%</em> achieves approximately 98%
+            accuracy. 
+          </p> 
+          
+          <p> 
+            These results suggest that the model trained with 15% masking relies
+            less on the reference view to solve the task. This supports the
+            effectiveness of our strategy of masking a substantial portion of
+            shuffled-view patches during training to encourage the model to
+            utilize the reference view. 
+          </p>
             
-            This suggests that the model trained with 15% masking relies less on the reference 
-            view to solve the task, which makes our strategy of masking a portion of shuffled patches 
-            during training effective in encouraging the model to utilize the reference view.
           </div>
         </div>
       </div>
@@ -1052,6 +1153,15 @@
           <div class="content">
             <h6 class="title is-6">Individual Contributions</h6>
             <p>
+              V.S. rendered and sharded the dataset, designed and implemented
+              Gator and Jigsaw, their training and evaluation scripts, and the
+              jigsaw losses. He trained the ViT-Small Jigsaw, Gator, CroCo, and
+              MAE models, as well as the ViT-Tiny Gator models for the ablation
+              studies. He implemented most of the Relative Pose Regression
+              pipeline, designed the second-view utilization study and its Tiny
+              Dataset, created the Hugging Face demo, and contributed equally to
+              the website.
+
               Add the contributions of each team member here.
             </p>
             <p><em>
