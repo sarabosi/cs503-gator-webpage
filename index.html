@@ -303,7 +303,21 @@
           <h2 class="title is-3" id="related-work">II. Related Works</h2>
           <div class="content has-text-justified">
             <p>
-              The related works part of the report can be provided here
+              Jigsaw puzzle solving has been widely studied as a pretext task for representation learning.
+              Prior work shows that predicting the correct arrangement of shuffled patches improves 
+              spatial reasoning and benefits tasks such as image classification and video 
+              understanding <a href="https://arxiv.org/abs/1603.09246">[6]</a>, <a href="https://arxiv.org/abs/2207.11971">[7]</a>, <a href="https://arxiv.org/abs/1808.07507">[8]</a>.
+              However, prior methods are typically single-view and not designed for cross-view 3D geometric learning.
+              The work most closely related to ours is CroCo <a href="https://arxiv.org/abs/2210.10716">[2]</a>, 
+              which performs cross-view masked reconstruction for 3D vision. 
+              CroCo receives two views of the same scene: one clean reference image and one partially masked image. 
+              Using an encoder-decoder architecture, it reconstructs the missing patches of the masked image by leveraging 
+              information from both views. 
+              This cross-view reconstruction objective encourages the model to learn geometric correspondences 
+              and scene structure. In contrast, our method replaces reconstruction with a two-view jigsaw objective,
+              using patch-order prediction as the pretraining signal.
+
+
             </p>
           </div>
         </div>
@@ -1029,6 +1043,24 @@
                 Available: <a href="https://arxiv.org/abs/1603.09246">https://arxiv.org/abs/1603.09246</a>
               </li>
 
+              <li>
+                M. Noroozi and P. Favaro, “Unsupervised learning of visual
+                representations by solving jigsaw puzzles,” 2017. [Online].
+                Available: https://arxiv.org/abs/1603.09246
+              </li>
+              
+              <li>
+                Y. Chen, X. Shen, Y. Liu, Q. Tao, and J. A. K. Suykens,
+                “Jigsaw-vit: Learning jigsaw puzzles in vision transformer,”
+                2023. [Online]. Available: https://arxiv.org/abs/2207.11971
+              </li>
+              
+              <li>
+                U. Ahsan, R. Madhok, and I. Essa, “Video jigsaw:
+                Unsupervised learning of spatiotemporal context for video
+                action recognition,” 2018. [Online]. Available: https://arxiv.
+                org/abs/1808.07507
+              </li>
               <!-- Add more references as needed -->
             </ol>
           </div>
