@@ -551,7 +551,7 @@
               Optical flow requires to predict a 2D dense vector field assigning a displacement value to 
               every pixel, taking as input two consecutive frames of a scene in motion. For reference, we show 
               an input example, alongside with the ground truth prediction and the GATOR prediction.
-
+              <br><br>
               <div id="optical-flow-carousel" class="multi-carousel-container" >
                 <div id="multi-carousel-track" class="multi-carousel-track">
                   <img src="./static/images/optical_flow/carousels/flow_carousel_0000.png" alt="Flow, frame 0000">
@@ -661,7 +661,49 @@
               with the other models is not fair. 
 
               <h3 class="title is-4" id="method">IV-E. Relative Pose Regression</h3>
+              We experiment on the relative pose regression downstream task, where, given a pair of images, the goal is to predict the relative pose 
+              of the camera with respect to a reference view.
 
+              <div id="relpose-carousel" class="multi-carousel-container">
+                <div id="relpose-track" class="multi-carousel-track">
+                  <img src="./static/images/relpose/carousels/relpose_chess_00.png" alt="Relpose chess 00">
+                  <img src="./static/images/relpose/carousels/relpose_chess_01.png" alt="Relpose chess 01">
+                  <img src="./static/images/relpose/carousels/relpose_chess_02.png" alt="Relpose chess 02">
+                  <img src="./static/images/relpose/carousels/relpose_chess_03.png" alt="Relpose chess 03">
+                  <img src="./static/images/relpose/carousels/relpose_chess_04.png" alt="Relpose chess 04">
+                  <img src="./static/images/relpose/carousels/relpose_chess_05.png" alt="Relpose chess 05">
+                  <img src="./static/images/relpose/carousels/relpose_chess_06.png" alt="Relpose chess 06">
+                  <img src="./static/images/relpose/carousels/relpose_chess_07.png" alt="Relpose chess 07">
+                  <img src="./static/images/relpose/carousels/relpose_chess_08.png" alt="Relpose chess 08">
+                  <img src="./static/images/relpose/carousels/relpose_chess_09.png" alt="Relpose chess 09">
+                  <img src="./static/images/relpose/carousels/relpose_chess_10.png" alt="Relpose chess 10">
+                  <img src="./static/images/relpose/carousels/relpose_chess_11.png" alt="Relpose chess 11">
+                  <img src="./static/images/relpose/carousels/relpose_chess_12.png" alt="Relpose chess 12">
+                  <img src="./static/images/relpose/carousels/relpose_chess_13.png" alt="Relpose chess 13">
+                  <img src="./static/images/relpose/carousels/relpose_chess_14.png" alt="Relpose chess 14">
+                  <img src="./static/images/relpose/carousels/relpose_chess_15.png" alt="Relpose chess 15">
+                  <img src="./static/images/relpose/carousels/relpose_chess_16.png" alt="Relpose chess 16">
+                  <img src="./static/images/relpose/carousels/relpose_chess_17.png" alt="Relpose chess 17">
+                  <img src="./static/images/relpose/carousels/relpose_chess_18.png" alt="Relpose chess 18">
+                  <img src="./static/images/relpose/carousels/relpose_chess_19.png" alt="Relpose chess 19">
+                  <img src="./static/images/relpose/carousels/relpose_chess_20.png" alt="Relpose chess 20">
+                  <img src="./static/images/relpose/carousels/relpose_chess_21.png" alt="Relpose chess 21">
+                  <img src="./static/images/relpose/carousels/relpose_chess_22.png" alt="Relpose chess 22">
+                  <img src="./static/images/relpose/carousels/relpose_chess_23.png" alt="Relpose chess 23">
+                  <img src="./static/images/relpose/carousels/relpose_chess_24.png" alt="Relpose chess 24">
+                  <img src="./static/images/relpose/carousels/relpose_chess_25.png" alt="Relpose chess 25">
+                  <img src="./static/images/relpose/carousels/relpose_chess_26.png" alt="Relpose chess 26">
+                  <img src="./static/images/relpose/carousels/relpose_chess_27.png" alt="Relpose chess 27">
+                  <img src="./static/images/relpose/carousels/relpose_chess_28.png" alt="Relpose chess 28">
+                  <img src="./static/images/relpose/carousels/relpose_chess_29.png" alt="Relpose chess 29">
+                </div>
+              </div>
+              <em>
+                The picture is a carousel. Tap to activate scrolling.
+                The first row shows the reference image, the second row shows the query image,
+                and the third row shows the predicted camera poses: green = reference camera,
+                orange = ground truth, red = predicted.
+              </em>           
               <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
 
               <p> 
