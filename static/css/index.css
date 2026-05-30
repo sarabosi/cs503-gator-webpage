@@ -220,3 +220,20 @@ body {
     pointer-events: none; 
     padding-right: 2px; 
 }
+
+.pred-dot{
+  width:14px;
+  height:14px;
+  border-radius:50%;
+  background:#bbb;
+  transition:all 0.2s ease;
+}
+
+.pred-dot.active{
+  background:#222;
+  transform:scale(1.3);
+}
+
+#pred-input-img{
+  max-width:620px;
+}
