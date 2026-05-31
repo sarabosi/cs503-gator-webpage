@@ -59,16 +59,16 @@
 
             <div class="is-size-5 publication-authors">
               <span class="author-block">
-                <a href="https://people.epfl.ch/sara.bosi">Sara Bosi</a>,
-              </span>
-              <span class="author-block">
-                <a href="https://people.epfl.ch/rosa.mayila">Rosa Mayila</a>,
+                <a href="https://people.epfl.ch/vsevolod.skorokhodov">Vsevolod Skorokhodov</a>,
               </span>
               <span class="author-block">
                 <a href="https://people.epfl.ch/giacomo.porpiglia">Giacomo Porpiglia</a>,
               </span>
               <span class="author-block">
-                <a href="https://people.epfl.ch/vsevolod.skorokhodov">Vsevolod Skorokhodov</a>
+                <a href="https://people.epfl.ch/sara.bosi">Sara Bosi</a>,
+              </span>
+              <span class="author-block">
+                <a href="https://people.epfl.ch/rosa.mayila">Rosa Mayila</a>
               </span>
             </div>
 
@@ -263,26 +263,22 @@
           <div class="content has-text-justified">
             <p>
 
-              Self-supervised learning has become a standard paradigm for learning visual representations 
-              from unlabeled data. Methods such as DINO <a href="https://arxiv.org/abs/2104.14294">[3]</a> and MAE <a href="https://arxiv.org/abs/2111.06377">[4]</a> 
+              Self-supervised learning has become a standard paradigm for learning visual representations from unlabeled data. Methods such as DINO <a href="https://arxiv.org/abs/2104.14294">[3]</a> and MAE <a href="https://arxiv.org/abs/2111.06377">[4]</a> 
               achieve strong results through self-distillation and masked image reconstruction, respectively. 
-              Masked modeling has further been extended to two-view pretraining with CroCo <a href="https://doi.org/10.48550/arXiv.2210.10716" >[2]</a>, 
-              which shows strong performance on 3D vision tasks. 
+              Masked modeling has further been extended to two-view pretraining with CroCo <a href="https://doi.org/10.48550/arXiv.2210.10716" >[2]</a>, and even multi-view modeling by MuM <a href="https://arxiv.org/pdf/2511.17309">[11]</a>, both exhibting strong performance on 3D vision tasks. 
             </p>
             <p>  
-              Another successful self-supervised paradigm is jigsaw puzzle solving <a href="https://arxiv.org/abs/1603.09246">[5]</a>.
-              Yet, its use as a pretraining method for multi-view downstream tasks remains largely unexplored.
-              In this work, we investigate whether a two-view jigsaw objective can serve as an effective pretraining strategy 
-              for 3D tasks such as image matching and optical flow. 
+              Another successful self-supervised paradigm for one-view models is jigsaw puzzle solving <a href="https://arxiv.org/abs/1603.09246">[5]</a>, where the pretraining goal consists in reordering shuffled patches of the input image. This method has proven effective for several applications, like video understanding <a href="https://arxiv.org/abs/1808.07507">[8]</a> and multimodal LLMs <a href="https://arxiv.org/abs/2509.25190">[10]</a>  Yet, its use as a pretraining method for multi-view modeling remains largely unexplored.
+              In this work, we investigate whether a two-view jigsaw objective can serve as an effective pretraining strategy for 3D tasks such as image matching and optical flow. 
             <p>
-              In this work we present Gator, a jigsaw based pretraining objective for multi-view models.
+              In this work we present Gator, a new self-supervised method based on jigsaw solving for multi-view models.
               During pretraining, the model recieves two views of the same scene: 
               we keep one view unchanged and shuffle the patches of the other. 
               The model is trained to recover the correct patch arrangement by exploiting the reference view, 
               thereby encouraging the learning of spatial structure and cross-view correspondences. 
               Our approach is not formulated as pixel-level prediction: instead, it formulates the pretraining objective as 
               a patch reordering problem. This objective still requires 3D understanding to be solved,
-              but without wasting parameters for low-level detail reconstruction such as textures.
+              but without using model parameters for low-level detail reconstruction such as textures.
               We also compare our model after finetuning on several downstream tasks against one-view 
               and multi-view methods, showing that Gator achieves competitive results in 3D vision downstream tasks.
             </p>
@@ -460,22 +456,23 @@
             <h3 class="title is-4" id="method">III-C. Pre-training Details</h3>
 
             <p> 
-              Due to the permutation invariance of the Transformer architecture, we 
-              do not explicitly shuffle the patches of the shuffled view during 
-              training. Since no positional information is provided for this view, 
-              omitting the explicit shuffle does not simplify the task. 
+              Due to the permutation invariance of the Transformer architecture,
+              we do not explicitly shuffle the patches of the shuffled view
+              during training, but pass them as they are. Since no positional
+              information is provided for this view, omitting the explicit
+              shuffle does not simplify the task. 
             </p> 
             <p> 
-              Our experiments with the Single View Jigsaw model suggest that strong performance 
-              can be achieved without relying on the reference view. However, 
-              the reference view is crucial for strong 3D performance, and 
-              therefore our model must learn to use it effectively. To 
-              encourage this behavior, we randomly mask between 35% and 85% 
-              of the shuffled-view patches during training. As a result, 
-              the model cannot rely solely on the shuffled view and 
-              must instead learn to use the reference view to solve the 
-              task. In the appendix, we show that this strategy effectively 
-              encourages the model to utilize the reference view.
+              Our experiments with the Single View Jigsaw model suggest that
+              strong jigsaw solving performance can be achieved without relying
+              on the reference view. However, the reference view is crucial for
+              strong 3D performance, and therefore our model must learn to use
+              it effectively. To encourage this behavior, we randomly mask
+              between 35% and 85% of the shuffled-view patches during training.
+              As a result, the model cannot rely solely on the shuffled view and
+              must instead learn to use the reference view to solve the task. In
+              the appendix (sec B), we show that this strategy effectively encourages
+              the model to utilize the reference view.
             </p>
           </div>
         </div>
@@ -549,9 +546,9 @@
               </br>
             
               <p>
-                The model achieves an accuracy of 88.9% in predicting the true patch positions.
+                The model achieves an accuracy of <strong>88.9%</strong> in predicting the true patch positions.
                 Examples of the model's predictions are shown in the carousel above. The Jigsaw
-                model achieves an accuracy of 88.2%, which is slightly lower than Gator but
+                model achieves an accuracy of <strong>88.2%</strong>, which is slightly lower than Gator but
                 remains competitive. This result suggests that, even without using the
                 reference view, the model can solve jigsaw puzzles to a large extent. It also
                 highlights the need to encourage the model to rely on the reference view in
@@ -561,7 +558,11 @@
 
               <h3 class="title is-4" id="method">IV-C. Classification</h3>
 
-              We evaluate representation quality via linear probing on ImageNet-1k: the backbone is frozen and a single linear head is trained on top of the extracted features. All models are trained with Adam, lr&nbsp;=&nbsp;10<sup>−3</sup>, cosine decay with 10% warm-up, batch size 512, for 25 epochs.
+              We evaluate representation quality via linear probing on
+              ImageNet-1k: the backbone is frozen and a single linear head is
+              trained on top of the extracted features. All models are trained
+              with Adam, learning rate $10^{-3}$, cosine decay with 10%
+              warm-up, batch size 512, for 25 epochs.
               
               We obtained the following results:
 
@@ -574,9 +575,495 @@
                 confirming that the cross-view jigsaw objective yields more transferable
                 representations than pixel-level reconstruction (CroCo) or single-view
                 objectives (MAE, Jigsaw).
+                <em>Classification examples are provided in App. C</em>
               </p>
 
-              <!-- ── Classification prediction viewer ─────────────────────── -->
+              
+              <br><br>
+              
+              <h3 class="title is-4" id="method">IV-D. Optical Flow</h3>
+              Optical flow requires to predict a 2D dense vector field assigning a displacement value to 
+              every pixel, taking as input two consecutive frames of a scene in motion. For reference, we show 
+              an input example, alongside with the ground truth prediction and the Gator prediction. 
+              To demostrate the quality of the predictions, we show two gifs with the results obtained on two different scenes of the MPI-Sintel dataset.
+              More examples of optical flow predictions are provided in App. D.
+              <br>
+              <br>
+              <div class="columns is-centered">
+                <div class="column is-half">
+                  <div align="center" class="box">
+                    <img src="static/images/optical_flow/temple_2.gif"
+                      alt="Optical Flow results gif for Temple 2 scene">
+                    <h5 class="subtitle has-text-centered">
+                      <font size="-0.7">
+                        <span style="font-weight:normal">
+                          Gif of optical flow results on the "Temple 2" scene of MPI-Sintel. The top row shows the input images, the middle row shows 
+                          the ground truth, and the bottom row shows Gator's prediction.
+                        </span>
+                      </font>
+                    </h5>
+                  </div>
+                </div>
+
+                <div class="column is-half">
+                  <div align="center" class="box">
+                    <img src="static/images/optical_flow/temple_3.gif"
+                      alt="Optical Flow results gif for Temple 3 scene">
+                    <h5 class="subtitle has-text-centered">
+                      <font size="-0.7">
+                        <span style="font-weight:normal">
+                          Gif of optical flow results on the "Temple 3" scene of MPI-Sintel. The top row shows the input images, the middle row shows 
+                          the ground truth, and the bottom row shows Gator's prediction.
+                        </span>
+                      </font>
+                    </h5>
+                  </div>
+                </div>
+              </div>
+
+              <p>
+                The following table shows the results obtained by finetuning the models on the MPI-Sintel + FlyingChairs datasets for 50 epochs.
+                The reported performance refers to the MPI-Sintel test set, 
+                which contains frames from two different scenes unseen during training.
+              </p>
+              
+              <img src="./static/images/optical_flow/results_table.png" style="width: 75%; display: block; margin: 0 auto;">
+
+              The results show that Gator reaches comparable performance with CroCo, using the same compute.
+              This results show the effectiveness of Gator's representations and their efficient transferability to this task. 
+              <br>
+              For reference, in the last row of the table we report the results from the original CroCo paper: 
+              their model is a ViT-base, pretrained for 2 weeks using four V100
+              and finetuned on a different dataset. Therefore, we include its performance in the table for a complete overview, 
+              even if the comparison with the other models is not fair. 
+
+              <h3 class="title is-4" id="method">IV-E. Relative Pose Regression</h3>
+              We experiment on the relative pose regression downstream task, where, given a pair of images, the goal is to predict the relative pose 
+              of the camera with respect to a reference view.
+
+              <div id="relpose-carousel" class="multi-carousel-container">
+                <div id="relpose-track" class="multi-carousel-track">
+                  <img src="./static/images/relpose/carousels/relpose_chess_00.png" alt="Relpose chess 00">
+                  <img src="./static/images/relpose/carousels/relpose_chess_01.png" alt="Relpose chess 01">
+                  <img src="./static/images/relpose/carousels/relpose_chess_02.png" alt="Relpose chess 02">
+                  <img src="./static/images/relpose/carousels/relpose_chess_03.png" alt="Relpose chess 03">
+                  <img src="./static/images/relpose/carousels/relpose_chess_04.png" alt="Relpose chess 04">
+                  <img src="./static/images/relpose/carousels/relpose_chess_05.png" alt="Relpose chess 05">
+                  <img src="./static/images/relpose/carousels/relpose_chess_06.png" alt="Relpose chess 06">
+                  <img src="./static/images/relpose/carousels/relpose_chess_07.png" alt="Relpose chess 07">
+                  <img src="./static/images/relpose/carousels/relpose_chess_08.png" alt="Relpose chess 08">
+                  <img src="./static/images/relpose/carousels/relpose_chess_09.png" alt="Relpose chess 09">
+                  <img src="./static/images/relpose/carousels/relpose_chess_10.png" alt="Relpose chess 10">
+                  <img src="./static/images/relpose/carousels/relpose_chess_11.png" alt="Relpose chess 11">
+                  <img src="./static/images/relpose/carousels/relpose_chess_12.png" alt="Relpose chess 12">
+                  <img src="./static/images/relpose/carousels/relpose_chess_13.png" alt="Relpose chess 13">
+                  <img src="./static/images/relpose/carousels/relpose_chess_14.png" alt="Relpose chess 14">
+                  <img src="./static/images/relpose/carousels/relpose_chess_15.png" alt="Relpose chess 15">
+                  <img src="./static/images/relpose/carousels/relpose_chess_16.png" alt="Relpose chess 16">
+                  <img src="./static/images/relpose/carousels/relpose_chess_17.png" alt="Relpose chess 17">
+                  <img src="./static/images/relpose/carousels/relpose_chess_18.png" alt="Relpose chess 18">
+                  <img src="./static/images/relpose/carousels/relpose_chess_19.png" alt="Relpose chess 19">
+                  <img src="./static/images/relpose/carousels/relpose_chess_20.png" alt="Relpose chess 20">
+                  <img src="./static/images/relpose/carousels/relpose_chess_21.png" alt="Relpose chess 21">
+                  <img src="./static/images/relpose/carousels/relpose_chess_22.png" alt="Relpose chess 22">
+                  <img src="./static/images/relpose/carousels/relpose_chess_23.png" alt="Relpose chess 23">
+                  <img src="./static/images/relpose/carousels/relpose_chess_24.png" alt="Relpose chess 24">
+                  <img src="./static/images/relpose/carousels/relpose_chess_25.png" alt="Relpose chess 25">
+                  <img src="./static/images/relpose/carousels/relpose_chess_26.png" alt="Relpose chess 26">
+                  <img src="./static/images/relpose/carousels/relpose_chess_27.png" alt="Relpose chess 27">
+                  <img src="./static/images/relpose/carousels/relpose_chess_28.png" alt="Relpose chess 28">
+                  <img src="./static/images/relpose/carousels/relpose_chess_29.png" alt="Relpose chess 29">
+                </div>
+              </div>
+              <em>
+                The picture is a carousel. Tap to activate scrolling.
+                The first row shows the reference image, the second row shows the query image,
+                and the third row shows the predicted camera poses: green = reference camera,
+                orange = ground truth, red = predicted.
+              </em>
+
+              <br>
+              <br>
+
+              <p>
+                The following table shows the results obtained by fine-tuning the models on the 7-Scenes dataset. 
+                The reported performance refers to the test set, evaluated in terms of Pose Recall@20°, 
+                median rotation error, and median translation angular error.
+              </p>
+
+              <img src="./static/images/relpose/result_table.png" style="width: 75%; display: block; margin: 0 auto;">
+
+              <p>
+                One-view models (Jigsaw, MAE) struggle to adapt to the pose regression task, while cross-view pretraining 
+                leads to substantially better performance. GATOR achieves competitive results compared to CroCo pretrained 
+                with comparable compute, demonstrating that its cross-view representations transfer well to relative pose regression. 
+                For reference, in the last row of the table we report the results from the original CroCo paper; 
+                note that the authors only report median errors, with translation expressed in centimeters rather 
+                than angular degrees, so Pose Recall@20° and median translation angular error are not available.
+              </p>
+
+              <h3 class="title is-4" id="method">IV-F. Second View Utilization: Tiny Dataset</h3>
+              <p> 
+                In this section, we evaluate whether the model uses the second view 
+                to solve the task or instead relies solely on the shuffled view. 
+                We construct a small dataset of 15 images, sampled from the
+                rendered dataset to keep the domain consistent. We use ChatGPT
+                to edit the images, followed by additional manual refinement in
+                GIMP. For each image \(x_1\), we introduce a modification such
+                that swapping a subset of its patches produces a second image
+                \(x_2\) that still appears realistic, while satisfying \(x_1
+                \neq x_2\). We then shuffle the patches of \(x_1\) to obtain the
+                shuffled view \(x_s\) and pass the images to the model. If the
+                model produces 
+                \[ 
+                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_1) \approx x_1,
+                \qquad 
+                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_2) \approx x_2, 
+                \] 
+                this
+                indicates that it can use the second view to resolve the
+                ambiguity and correctly solve the task. 
+              </p>
+              
+                  
+              <div id="image-carousel" class="carousel-container"></div>
+
+              <em>
+              The picture is a carousel. Tap to activate scrolling.
+              Top row is shuffled image before shuffling, middle row is the reference view, and the bottom row is the shuffled view after shuffling.
+              </em>
+            </br>
+            </br>
+
+               
+            <p> 
+              We observe that the model correctly uses the second view and
+              solves the task for all 30 reference views, corresponding to two
+              reference views for each of the 15 dataset images. Moreover, the
+              prediction accuracy exceeds 98% on the swapped patches. These
+              results suggest that the model learns to use the second view to
+              solve the task, rather than relying on shortcuts. We perform an 
+              additional experiment to evaluate the model's reliance on the
+              second view in the appendix (sec E). 
+            </p>
+            
+            <h3 class="title is-4" id="method">IV-G. Cross-Attention Maps </h3>
+
+            <div id="multi-carousel" class="multi-carousel-container" >
+                <div id="multi-track" class="multi-carousel-track">
+                  <img src="./static/images/matched_combined/img_000.png" alt="Matches 000">
+                  <img src="./static/images/matched_combined/img_001.png" alt="Matches 001">
+                  <img src="./static/images/matched_combined/img_002.png" alt="Matches 002">
+                  <img src="./static/images/matched_combined/img_003.png" alt="Matches 003">
+                  <img src="./static/images/matched_combined/img_004.png" alt="Matches 004">
+                  <img src="./static/images/matched_combined/img_005.png" alt="Matches 005">
+                  <img src="./static/images/matched_combined/img_006.png" alt="Matches 006">
+                  <img src="./static/images/matched_combined/img_007.png" alt="Matches 007">
+                </div>
+              </div>
+              <em>
+                Matching between patches. In each pair one image is shuffled
+                before shuffling and the other is the reference view.
+              </em>
+              </br>
+              </br>
+              <p>
+                We analyze the cross-attention maps in the model decoder. Surprisingly, we find
+                that the model learns to establish correspondences between patches in the
+                shuffled and reference views without any explicit correspondence supervision.
+                For each token in the shuffled view, we identify the token in the reference
+                view with the highest attention weight and visualize the resulting matches in
+                the carousel above. We use the output of decoder layer 4 for this analysis, as
+                the outputs of later layers do not exhibit clear matching patterns, likely
+                because they focus more on task prediction than on cross-view reasoning.
+              </p>
+
+            </p>
+          </div>
+        </div>
+      </div>
+      <!--/ Results. -->
+    </div>
+  </section>
+  <!------------------------------------------------------------------------->
+
+  <!-----------------------------TODO: DISCUSSION-------------------------------->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Conclusion and Limitations. -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3" id="conclusion">V. Conclusion and Limitations</h2>
+          <div class="content has-text-justified">
+            <p>
+              In this work, we have explored a new pretraining method for
+              multi-view models based on jigsaw puzzle solving. By avoiding
+              pixel-level reconstruction as the pretraining objective, our
+              method is able to adapt effectively to downstream tasks compared
+              to single-view models (MAE, one-view jigsaw) and the multi-view
+              CroCo, when trained with the same compute. We demonstrated that
+              the model learns to use the second view to solve the pretraining
+              task, confirming that the adopted objective encourages cross-view
+              reasoning.
+            </br>
+
+              Despite these promising results, several directions remain for
+              future work.
+              <strong>(1)</strong> Our experiments use ViT-Small-scale models
+              due to limited compute. Future work could evaluate Gator at larger
+              scales and compare it with CroCo and other baselines under similar
+              settings.
+              <strong>(2)</strong> The current model may assign multiple patches
+              to the same position, resulting in holes in the reconstructed
+              image. While our focus is on pretraining performance rather than
+              optimal jigsaw solving, future work could explore strategies to
+              reduce such duplicate assignments.
+              <strong>(3)</strong> Finally, our pretraining dataset is synthetic
+              and limited to indoor scenes. Evaluating the method on larger,
+              more diverse datasets, as well as in other domains such as outdoor
+              scenes or other modalities, would be an important direction for
+              further study.
+              
+            </p>
+          </div>
+        </div>
+      </div>
+      <!--/ Conclusion and Limitations. -->
+    </div>
+  </section>
+  <!------------------------------------------------------------------------->
+
+  <!-----------------------------TODO: VISUAL ITEMS THAT CAN BE USED-------------------------------->
+  
+
+  <!------------------------------------------------------------------------->
+
+  <!-- HuggingFace Project Demo -->
+  <section class="section">
+    <div class="container is-max-desktop">
+      <h2 class="title is-3 has-text-centered"> <a href="https://huggingface.co/spaces/sevashasla2/gator"> 🤗 Demo </a> </h2>
+
+      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="100%" height="500"
+        style="display: block; margin: 0 auto;">
+      </iframe>
+
+    </div>
+  </section>
+
+  <!------------------------------------------------------------------------->
+
+  <section class="section">
+    <div class="container is-max-desktop">
+
+      <!-- Concurrent Work. -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3">References</h2>
+
+          <div class="content has-text-justified">
+            <class="references">
+              <li>
+                Darcet T, Oquab M, Mairal J, Bojanowski P. Vision transformers need registers. InInternational
+                conference on learning representations 2024 May 31 (Vol. 2024, pp. 2632-2652).
+                <a href="https://doi.org/10.48550/arXiv.2309.16588">https://doi.org/10.48550/arXiv.2309.16588</a>.
+              </li>
+
+              <li>
+                Weinzaepfel P, Leroy V, Lucas T, Brégier R, Cabon Y, Arora V, Antsfeld L, Chidlovskii B, Csurka G,
+                Revaud J. Croco: Self-supervised pre-training for 3d vision tasks by cross-view completion. Advances in
+                Neural Information Processing Systems. 2022 Dec 6;35:3502-16.
+                <a href="https://doi.org/10.48550/arXiv.2210.10716">https://doi.org/10.48550/arXiv.2210.10716</a>.
+              </li>
+
+              <li>
+                M. Caron, H. Touvron, I. Misra, H. J´egou, J. Mairal,
+                P. Bojanowski, and A. Joulin, “Emerging properties in
+                self-supervised vision transformers,” in Proceedings of the
+                IEEE/CVF international conference on computer vision,
+                2021, pp. 9650–9660
+                      <a href="https://arxiv.org/abs/2104.14294">https://arxiv.org/abs/2104.14294</a>, 
+                
+              </li>
+            
+              <li>
+                K. He, X. Chen, S. Xie, Y. Li, P. Doll´ar, and R. Girshick,
+                “Masked autoencoders are scalable vision learners,” 2021.
+                
+                <a href="https://arxiv.org/abs/2111.06377">https://arxiv.org/abs/2111.06377</a>
+              </li>
+
+              <li>
+                M. Noroozi and P. Favaro, “Unsupervised learning of visual
+                representations by solving jigsaw puzzles,” 2017. [Online].
+                Available: <a href="https://arxiv.org/abs/1603.09246">https://arxiv.org/abs/1603.09246</a>
+              </li>
+
+              <li>
+                M. Noroozi and P. Favaro, “Unsupervised learning of visual
+                representations by solving jigsaw puzzles,” 2017. [Online].
+                Available: https://arxiv.org/abs/1603.09246
+              </li>
+              
+              <li>
+                Y. Chen, X. Shen, Y. Liu, Q. Tao, and J. A. K. Suykens,
+                “Jigsaw-vit: Learning jigsaw puzzles in vision transformer,”
+                2023. [Online]. Available: <a href="https://arxiv.org/abs/2207.11971">https://arxiv.org/abs/2207.11971</a>
+              </li>
+              
+              <li>
+                U. Ahsan, R. Madhok, and I. Essa, “Video jigsaw:
+                Unsupervised learning of spatiotemporal context for video
+                action recognition,” 2018. [Online]. Available: <a href="https://arxiv.
+                org/abs/1808.07507">https://arxiv.org/abs/1808.07507</a>
+              </li>
+              <li>
+                Z. Song, Z. Hu, and R. Hong, “Grid jigsaw representation
+                with clip: a new perspective on image clustering,” Multimedia
+                Systems, vol. 31, no. 2, Feb. 2025. [Online]. Available:
+                <a href="http://dx.doi.org/10.1007/s00530-025-01703-x">http://dx.doi.org/10.1007/s00530-025-01703-x</a>
+              </li>
+              <li>
+                P. Wu, Y. Zhang, H. Diao, B. Li, L. Lu, and Z. Liu,
+                “Visual jigsaw post-training improves mllms,” 2025. [Online].
+                Available: <a href="https://arxiv.org/abs/2509.25190">https://arxiv.org/abs/2509.25190</a>
+              </li>
+              
+              <li>
+                D. Nordstr¨om, J. Edstedt, F. Kahl, and G. B¨okman, “Mum:
+                Multi-view masked image modeling for 3d vision,” 2025.
+                [Online]. Available: <a href="https://arxiv.org/abs/2511.17309">https://arxiv.org/abs/2511.17309</a>
+              </li>
+
+              <!-- Add more references as needed -->
+            </ol>
+          </div>
+        </div>
+      </div>
+      <!--/ Concurrent Work. -->
+
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="container is-max-desktop">
+      <!-- Introduction. -->
+      <div class="columns is-centered">
+        <div class="column is-full-width">
+          <h2 class="title is-3" id="appendix">Appendices</h2>
+          <div class="content has-text-justified">
+            
+            <h3 class="title is-4" id="method">A. Ablation on Jigsaw Objective </h3>
+            
+            <p> 
+              We train the model using the different jigsaw objectives
+              described in Section III-B and compare their performance on the
+              pretraining task. Due to computational constraints, we use a
+              ViT-Tiny model and train each variant for 12 hours on a single
+              V100 GPU. We follow the same training setup as described in
+              Section IV-A. For each objective, we tune the learning rate on the
+              validation set and use the best-performing learning rate to train
+              the final model.
+            </p>
+
+            <div class="columns is-centered">
+              <div class="column is-three-quarters">
+                <div align="center" class="box">
+                  <img src="./static/images/loss_comparison_metrics.png">
+                  <h5 class="subtitle has-text-centered">
+                    <font size="-0.7">
+                      <span style="font-weight:normal">
+                        Comparison of different jigsaw objectives. The left plot
+                        shows the accuracy of predicting patch positions using
+                        classification, while the right plot shows the mean
+                        squared error between the ground-truth image and the
+                        image reconstructed from the predicted patch positions
+                        or opacities. We also report the performance of the
+                        Jigsaw model as a reference.
+                      </span>
+                    </font>
+                  </h5>
+                </div>
+              </div>
+            </div>
+
+            <p> 
+              Regardless of the learning rate, the model trained with the visual
+              loss does not converge within 12 hours and achieves the worst
+              performance. We attribute this to the greater complexity of the
+              visual objective, which requires the model to infer both patch
+              positions and their contributions to the reconstructed image. 
+            </p>
+
+            <p> 
+              The classification objective achieves the best accuracy and MSE,
+              so we use it in our finetuning experiments. The distance-based
+              objective achieves the second-best performance, suggesting that it
+              may be a viable alternative to the classification objective. One
+              advantage of the distance-based objective is that it encodes a
+              notion of similarity between positions: nearby positions are
+              treated as more similar than distant ones. The similarity loss
+              performs better than the visual loss but worse than the
+              classification and distance-based objectives. This may be because
+              replacing the one-hot target with a soft target distribution makes
+              the task more difficult. 
+            </p>
+
+            <h3 class="title is-4" id="method">B. Ablation on Masking Ratios </h3>
+
+            <p> We perform a small ablation study to evaluate the effectiveness
+            of randomly masking a portion of the shuffled-view patches during
+            training. We train two models with the same architecture and
+            training setup, varying only the masking ratio. One model is trained
+            with approximately 60% of shuffled-view patches masked out, referred
+            to as <em>model-60%</em>, while the other is trained with
+            approximately 15% masking, referred to as <em>model-15%</em>. We
+            then compare their performance using the same evaluation strategy as
+            in Section IV-F. </p>
+          
+            <div class="columns is-centered">
+              <div class="column is-three-quarters">
+                <div align="center" class="box">
+                  <img src="./static/images/acc_vs_train_masking_ratio.png">
+                  <h5 class="subtitle has-text-centered">
+                    <font size="-0.7">
+                      <span style="font-weight:normal">
+                        Comparison between using the true reference view and
+                        replacing the reference view with a zero image for
+                        different training masking ratios. The left plot shows
+                        the accuracy of the model trained with approximately 60%
+                        of shuffled-view patches masked out, while the right
+                        plot shows the accuracy of the model trained with
+                        approximately 15% masking.
+                      </span>
+                    </font>
+                  </h5>
+                </div>
+              </div>
+            </div>
+          <p> 
+            The figure shows that the performance curves with and without
+            zeroing the reference view are closer for <em>model-15%</em>. We
+            further evaluate both models on the Tiny Dataset and observe that
+            <em>model-15%</em> achieves approximately 91% accuracy on swapped
+            patches, whereas <em>model-60%</em> achieves approximately 98%
+            accuracy. 
+          </p> 
+          
+          <p> 
+            These results suggest that the model trained with 15% masking relies
+            less on the reference view to solve the task. This supports the
+            effectiveness of our strategy of masking a substantial portion of
+            shuffled-view patches during training to encourage the model to
+            utilize the reference view. 
+          </p>
+
+          <h3 class="title is-4" id="method">C. Classification Examples </h3>
+
+          It this section we provide additional visualizations of the
+          classification predictions of our model on ImageNet validation
+          samples.
+
+          <!-- ── Classification prediction viewer ─────────────────────── -->
               <style>
                 .pred-explorer { max-width: 820px; margin: 1.8rem auto; font-family: 'Google Sans','Noto Sans',sans-serif; }
                 .pred-nav { display:flex; align-items:center; gap:.8rem; margin-bottom:1rem; }
@@ -788,14 +1275,13 @@
                 along with the softmax confidence.
                 Slides advance automatically; click any arrow or dot to take control.
               </em>
-              <br><br>
-              
-              <h3 class="title is-4" id="method">IV-D. Optical Flow</h3>
-              Optical flow requires to predict a 2D dense vector field assigning a displacement value to 
-              every pixel, taking as input two consecutive frames of a scene in motion. For reference, we show 
-              an input example, alongside with the ground truth prediction and the Gator prediction.
-              <br><br>
-              <div id="optical-flow-carousel" class="multi-carousel-container" >
+
+          <h3 class="title is-4" id="method">D. More Optical Flow Examples </h3>
+
+          It this section we provide additional visualizations of the optical
+          flow predictions of our model on MPI-Sintel. 
+
+          <div id="optical-flow-carousel" class="multi-carousel-container" >
                 <div id="multi-carousel-track" class="multi-carousel-track">
                   <img src="./static/images/optical_flow/carousels/flow_carousel_0000.png" alt="Flow, frame 0000">
                   <img src="./static/images/optical_flow/carousels/flow_carousel_0001.png" alt="Flow, frame 0001">
@@ -853,122 +1339,9 @@
                 The first row shows the input frames, the second row shows the 
                 ground truth for optical flow, the third row shows Gator's prediction.
               </em> 
-              <br>
-              <br>
-              <div class="columns is-centered">
-                <div class="column is-half">
-                  <div align="center" class="box">
-                    <img src="static/images/optical_flow/temple_2.gif"
-                      alt="Optical Flow results gif for Temple 2 scene">
-                    <h5 class="subtitle has-text-centered">
-                      <font size="-0.7">
-                        <span style="font-weight:normal">
-                          Gif of optical flow results on the "Temple 2" scene of MPI-Sintel. The top row shows the input images, the middle row shows 
-                          the ground truth, and the bottom row shows Gator's prediction.
-                        </span>
-                      </font>
-                    </h5>
-                  </div>
-                </div>
 
-                <div class="column is-half">
-                  <div align="center" class="box">
-                    <img src="static/images/optical_flow/temple_3.gif"
-                      alt="Optical Flow results gif for Temple 3 scene">
-                    <h5 class="subtitle has-text-centered">
-                      <font size="-0.7">
-                        <span style="font-weight:normal">
-                          Gif of optical flow results on the "Temple 3" scene of MPI-Sintel. The top row shows the input images, the middle row shows 
-                          the ground truth, and the bottom row shows Gator's prediction.
-                        </span>
-                      </font>
-                    </h5>
-                  </div>
-                </div>
-              </div>
-
-              <p>
-                The following table shows the results obtained by finetuning the models on the MPI-Sintel + FlyingChairs datasets for 50 epochs.
-                The reported performance refers to the MPI-Sintel test set, 
-                which contains frames from two different scenes unseen during training.
-              </p>
-              
-              <img src="./static/images/optical_flow/results_table.png" style="width: 75%; display: block; margin: 0 auto;">
-
-              The results show that Gator reaches comparable performance with CroCo, using the same compute.
-              This results show the effectiveness of Gator's representations and their efficient transferability to this task. 
-              <br>
-              For reference, in the last row of the table we report the results from the original CroCo paper: 
-              their model is a ViT-base, pretrained for 2 weeks using four V100
-              and finetuned on a different dataset. Therefore, we include its performance in the table for a complete overview, 
-              even if the comparison with the other models is not fair. 
-
-              <h3 class="title is-4" id="method">IV-E. Relative Pose Regression</h3>
-              We experiment on the relative pose regression downstream task, where, given a pair of images, the goal is to predict the relative pose 
-              of the camera with respect to a reference view.
-
-              <div id="relpose-carousel" class="multi-carousel-container">
-                <div id="relpose-track" class="multi-carousel-track">
-                  <img src="./static/images/relpose/carousels/relpose_chess_00.png" alt="Relpose chess 00">
-                  <img src="./static/images/relpose/carousels/relpose_chess_01.png" alt="Relpose chess 01">
-                  <img src="./static/images/relpose/carousels/relpose_chess_02.png" alt="Relpose chess 02">
-                  <img src="./static/images/relpose/carousels/relpose_chess_03.png" alt="Relpose chess 03">
-                  <img src="./static/images/relpose/carousels/relpose_chess_04.png" alt="Relpose chess 04">
-                  <img src="./static/images/relpose/carousels/relpose_chess_05.png" alt="Relpose chess 05">
-                  <img src="./static/images/relpose/carousels/relpose_chess_06.png" alt="Relpose chess 06">
-                  <img src="./static/images/relpose/carousels/relpose_chess_07.png" alt="Relpose chess 07">
-                  <img src="./static/images/relpose/carousels/relpose_chess_08.png" alt="Relpose chess 08">
-                  <img src="./static/images/relpose/carousels/relpose_chess_09.png" alt="Relpose chess 09">
-                  <img src="./static/images/relpose/carousels/relpose_chess_10.png" alt="Relpose chess 10">
-                  <img src="./static/images/relpose/carousels/relpose_chess_11.png" alt="Relpose chess 11">
-                  <img src="./static/images/relpose/carousels/relpose_chess_12.png" alt="Relpose chess 12">
-                  <img src="./static/images/relpose/carousels/relpose_chess_13.png" alt="Relpose chess 13">
-                  <img src="./static/images/relpose/carousels/relpose_chess_14.png" alt="Relpose chess 14">
-                  <img src="./static/images/relpose/carousels/relpose_chess_15.png" alt="Relpose chess 15">
-                  <img src="./static/images/relpose/carousels/relpose_chess_16.png" alt="Relpose chess 16">
-                  <img src="./static/images/relpose/carousels/relpose_chess_17.png" alt="Relpose chess 17">
-                  <img src="./static/images/relpose/carousels/relpose_chess_18.png" alt="Relpose chess 18">
-                  <img src="./static/images/relpose/carousels/relpose_chess_19.png" alt="Relpose chess 19">
-                  <img src="./static/images/relpose/carousels/relpose_chess_20.png" alt="Relpose chess 20">
-                  <img src="./static/images/relpose/carousels/relpose_chess_21.png" alt="Relpose chess 21">
-                  <img src="./static/images/relpose/carousels/relpose_chess_22.png" alt="Relpose chess 22">
-                  <img src="./static/images/relpose/carousels/relpose_chess_23.png" alt="Relpose chess 23">
-                  <img src="./static/images/relpose/carousels/relpose_chess_24.png" alt="Relpose chess 24">
-                  <img src="./static/images/relpose/carousels/relpose_chess_25.png" alt="Relpose chess 25">
-                  <img src="./static/images/relpose/carousels/relpose_chess_26.png" alt="Relpose chess 26">
-                  <img src="./static/images/relpose/carousels/relpose_chess_27.png" alt="Relpose chess 27">
-                  <img src="./static/images/relpose/carousels/relpose_chess_28.png" alt="Relpose chess 28">
-                  <img src="./static/images/relpose/carousels/relpose_chess_29.png" alt="Relpose chess 29">
-                </div>
-              </div>
-              <em>
-                The picture is a carousel. Tap to activate scrolling.
-                The first row shows the reference image, the second row shows the query image,
-                and the third row shows the predicted camera poses: green = reference camera,
-                orange = ground truth, red = predicted.
-              </em>
-
-              <br>
-              <br>
-
-              <p>
-                The following table shows the results obtained by fine-tuning the models on the 7-Scenes dataset. 
-                The reported performance refers to the test set, evaluated in terms of Pose Recall@20°, 
-                median rotation error, and median translation angular error.
-              </p>
-
-              <img src="./static/images/relpose/result_table.png" style="width: 75%; display: block; margin: 0 auto;">
-
-              <p>
-                One-view models (Jigsaw, MAE) struggle to adapt to the pose regression task, while cross-view pretraining 
-                leads to substantially better performance. GATOR achieves competitive results compared to CroCo pretrained 
-                with comparable compute, demonstrating that its cross-view representations transfer well to relative pose regression. 
-                For reference, in the last row of the table we report the results from the original CroCo paper; 
-                note that the authors only report median errors, with translation expressed in centimeters rather 
-                than angular degrees, so Pose Recall@20° and median translation angular error are not available.
-              </p>
-
-              <h3 class="title is-4" id="method">IV-F. Second View Utilization: Zero Reference</h3>
+            
+              <h3 class="title is-4" id="method">E. Second View Utilization: Zero Reference</h3>
 
               <p> 
                 In this section, we evaluate whether the model uses the second view 
@@ -1017,324 +1390,6 @@
               reference view.
               </p>
 
-              <h3 class="title is-4" id="method">IV-G. Second View Utilization: Tiny Dataset</h3>
-              <p> 
-                We construct a small dataset of 15 images, sampled from the
-                rendered dataset to keep the domain consistent. We use ChatGPT
-                to edit the images, followed by additional manual refinement in
-                GIMP. For each image \(x_1\), we introduce a modification such
-                that swapping a subset of its patches produces a second image
-                \(x_2\) that still appears realistic, while satisfying \(x_1
-                \neq x_2\). We then shuffle the patches of \(x_1\) to obtain the
-                shuffled view \(x_s\) and pass the images to the model. If the
-                model produces 
-                \[ 
-                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_1) \approx x_1,
-                \qquad 
-                \operatorname{Gator}(\text{shuffled}=x_s, \text{reference}=x_2) \approx x_2, 
-                \] 
-                this
-                indicates that it can use the second view to resolve the
-                ambiguity and correctly solve the task. 
-              </p>
-              
-            <div class="columns is-centered">
-              <div class="column is-three-quarters">
-                <div align="center" class="box">
-                  
-                  <div id="image-carousel" class="carousel-container"></div>
-
-                  <h5 class="subtitle has-text-centered">
-                    <font size="-0.7">
-                      <span style="font-weight:normal">
-                        <em>The picture is a carousel. Tap to activate scrolling.</em></br>
-
-                        Top row is shuffled image before shuffling, middle row is the reference view, 
-                        and the bottom row is the shuffled view after shuffling.
-                      </span>
-                    </font>
-                    </h5>
-                </div>
-              </div>
-            </div>
-               
-            <p> 
-              We observe that the model correctly uses the second view and
-              solves the task for all 30 reference views, corresponding to two
-              reference views for each of the 15 dataset images. Moreover, the
-              prediction accuracy exceeds 98% on the swapped patches. These
-              results suggest that the model learns to use the second view to
-              solve the task, rather than relying on shortcuts.
-            </p>
-            
-            <h3 class="title is-4" id="method">IV-H. Cross-Attention Maps </h3>
-
-            <div id="multi-carousel" class="multi-carousel-container" >
-                <div id="multi-track" class="multi-carousel-track">
-                  <img src="./static/images/matched_combined/img_000.png" alt="Matches 000">
-                  <img src="./static/images/matched_combined/img_001.png" alt="Matches 001">
-                  <img src="./static/images/matched_combined/img_002.png" alt="Matches 002">
-                  <img src="./static/images/matched_combined/img_003.png" alt="Matches 003">
-                  <img src="./static/images/matched_combined/img_004.png" alt="Matches 004">
-                  <img src="./static/images/matched_combined/img_005.png" alt="Matches 005">
-                  <img src="./static/images/matched_combined/img_006.png" alt="Matches 006">
-                  <img src="./static/images/matched_combined/img_007.png" alt="Matches 007">
-                </div>
-              </div>
-              <em>
-                Matching between patches. In each pair one image is shuffled
-                before shuffling and the other is the reference view.
-              </em>
-              </br>
-              </br>
-              <p>
-                We analyze the cross-attention maps in the model decoder. Surprisingly, we find
-                that the model learns to establish correspondences between patches in the
-                shuffled and reference views without any explicit correspondence supervision.
-                For each token in the shuffled view, we identify the token in the reference
-                view with the highest attention weight and visualize the resulting matches in
-                the carousel above. We use the output of decoder layer 4 for this analysis, as
-                the outputs of later layers do not exhibit clear matching patterns, likely
-                because they focus more on task prediction than on cross-view reasoning.
-              </p>
-
-            
-            </p>
-          </div>
-        </div>
-      </div>
-      <!--/ Results. -->
-    </div>
-  </section>
-  <!------------------------------------------------------------------------->
-
-  <!-----------------------------TODO: DISCUSSION-------------------------------->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <!-- Conclusion and Limitations. -->
-      <div class="columns is-centered">
-        <div class="column is-full-width">
-          <h2 class="title is-3" id="conclusion">V. Conclusion and Limitations</h2>
-          <div class="content has-text-justified">
-            <p>
-              In this work, we have explored a new pretraining method for multi-view models based on jigsaw
-              puzzle solving. By avoiding pixel-level reconstruction as the pretraining objective, 
-              our method is able to adapt effectively to downstream tasks compared to single-view models 
-              (MAE, one-view jigsaw) and the multi-view CroCo, when trained with the same compute.
-              The model utilizes the second view to solve the pretraining task, confirming that the adopted
-              objective incentivices cross-view reasoning.
-              <br>
-              All the results we showed are obtained using a ViT-small scale. Whether our pretraining method
-              retains the same efficiency compared to the baselines at larger scales remains a question
-              for future works.
-            </p>
-          </div>
-        </div>
-      </div>
-      <!--/ Conclusion and Limitations. -->
-    </div>
-  </section>
-  <!------------------------------------------------------------------------->
-
-  <!-----------------------------TODO: VISUAL ITEMS THAT CAN BE USED-------------------------------->
-  
-
-  <!------------------------------------------------------------------------->
-
-  <!-- HuggingFace Project Demo -->
-  <section class="section">
-    <div class="container is-max-desktop">
-      <h2 class="title is-3 has-text-centered"> <a href="https://huggingface.co/spaces/sevashasla2/gator"> 🤗 Demo </a> </h2>
-
-      <iframe src="https://sevashasla2-gator.hf.space" frameborder="0" width="100%" height="500"
-        style="display: block; margin: 0 auto;">
-      </iframe>
-
-    </div>
-  </section>
-
-  <!------------------------------------------------------------------------->
-
-  <section class="section">
-    <div class="container is-max-desktop">
-
-      <!-- Concurrent Work. -->
-      <div class="columns is-centered">
-        <div class="column is-full-width">
-          <h2 class="title is-3">References</h2>
-
-          <div class="content has-text-justified">
-            <class="references">
-              <li>
-                Darcet T, Oquab M, Mairal J, Bojanowski P. Vision transformers need registers. InInternational
-                conference on learning representations 2024 May 31 (Vol. 2024, pp. 2632-2652).
-                <a href="https://doi.org/10.48550/arXiv.2309.16588">https://doi.org/10.48550/arXiv.2309.16588</a>.
-              </li>
-
-              <li>
-                Weinzaepfel P, Leroy V, Lucas T, Brégier R, Cabon Y, Arora V, Antsfeld L, Chidlovskii B, Csurka G,
-                Revaud J. Croco: Self-supervised pre-training for 3d vision tasks by cross-view completion. Advances in
-                Neural Information Processing Systems. 2022 Dec 6;35:3502-16.
-                <a href="https://doi.org/10.48550/arXiv.2210.10716">https://doi.org/10.48550/arXiv.2210.10716</a>.
-              </li>
-
-              <li>
-                M. Caron, H. Touvron, I. Misra, H. J´egou, J. Mairal,
-                P. Bojanowski, and A. Joulin, “Emerging properties in
-                self-supervised vision transformers,” in Proceedings of the
-                IEEE/CVF international conference on computer vision,
-                2021, pp. 9650–9660
-                      <a href="https://arxiv.org/abs/2104.14294">https://arxiv.org/abs/2104.14294</a>, 
-                
-              </li>
-            
-              <li>
-                K. He, X. Chen, S. Xie, Y. Li, P. Doll´ar, and R. Girshick,
-                “Masked autoencoders are scalable vision learners,” 2021.
-                
-                <a href="https://arxiv.org/abs/2111.06377">https://arxiv.org/abs/2111.06377</a>
-              </li>
-
-              <li>
-                M. Noroozi and P. Favaro, “Unsupervised learning of visual
-                representations by solving jigsaw puzzles,” 2017. [Online].
-                Available: <a href="https://arxiv.org/abs/1603.09246">https://arxiv.org/abs/1603.09246</a>
-              </li>
-              
-              <li>
-                Y. Chen, X. Shen, Y. Liu, Q. Tao, and J. A. K. Suykens,
-                “Jigsaw-vit: Learning jigsaw puzzles in vision transformer,”
-                2023. [Online]. Available: https://arxiv.org/abs/2207.11971
-              </li>
-              
-              <li>
-                U. Ahsan, R. Madhok, and I. Essa, “Video jigsaw:
-                Unsupervised learning of spatiotemporal context for video
-                action recognition,” 2018. [Online]. Available: https://arxiv.
-                org/abs/1808.07507
-              </li>
-              <!-- Add more references as needed -->
-            </ol>
-          </div>
-        </div>
-      </div>
-      <!--/ Concurrent Work. -->
-
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container is-max-desktop">
-      <!-- Introduction. -->
-      <div class="columns is-centered">
-        <div class="column is-full-width">
-          <h2 class="title is-3" id="appendix">Appendices</h2>
-          <div class="content has-text-justified">
-            
-            <h3 class="title is-4" id="method">A. Ablation on Jigsaw Objective </h3>
-            
-            <p> 
-              We train the model using the different jigsaw objectives
-              described in Section III-B and compare their performance on the
-              pretraining task. Due to computational constraints, we use a
-              ViT-Tiny model and train each variant for 12 hours on a single
-              V100 GPU. We follow the same training setup as described in
-              Section IV-A. For each objective, we tune the learning rate on the
-              validation set and use the best-performing learning rate to train
-              the final model.
-            </p>
-
-            <div class="columns is-centered">
-              <div class="column is-three-quarters">
-                <div align="center" class="box">
-                  <img src="./static/images/loss_comparison_metrics.png">
-                  <h5 class="subtitle has-text-centered">
-                    <font size="-0.7">
-                      <span style="font-weight:normal">
-                        Comparison of different jigsaw objectives. The left plot
-                        shows the accuracy of predicting patch positions using
-                        classification, while the right plot shows the mean
-                        squared error between the ground-truth image and the
-                        image reconstructed from the predicted patch positions
-                        or opacities. We also report the performance of the
-                        Jigsaw model as a reference.
-                      </span>
-                    </font>
-                  </h5>
-                </div>
-              </div>
-            </div>
-
-            <p> 
-              Regardless of the learning rate, the model trained with the visual
-              loss does not converge within 12 hours and achieves the worst
-              performance. We attribute this to the greater complexity of the
-              visual objective, which requires the model to infer both patch
-              positions and their contributions to the reconstructed image. 
-            </p>
-
-            <p> 
-              The classification objective achieves the best accuracy and MSE,
-              so we use it in our finetuning experiments. The distance-based
-              objective achieves the second-best performance, suggesting that it
-              may be a viable alternative to the classification objective. One
-              advantage of the distance-based objective is that it encodes a
-              notion of similarity between positions: nearby positions are
-              treated as more similar than distant ones. The similarity loss
-              performs better than the visual loss but worse than the
-              classification and distance-based objectives. This may be because
-              replacing the one-hot target with a soft target distribution makes
-              the task more difficult. 
-            </p>
-
-            <h3 class="title is-4" id="method">B. Ablation on Masking Ratios </h3>
-
-            <p> We perform a small ablation study to evaluate the effectiveness
-            of randomly masking a portion of the shuffled-view patches during
-            training. We train two models with the same architecture and
-            training setup, varying only the masking ratio. One model is trained
-            with approximately 60% of shuffled-view patches masked out, referred
-            to as <em>model-60%</em>, while the other is trained with
-            approximately 15% masking, referred to as <em>model-15%</em>. We
-            then compare their performance using the same evaluation strategy as
-            in Section IV-F. </p>
-          
-            <div class="columns is-centered">
-              <div class="column is-three-quarters">
-                <div align="center" class="box">
-                  <img src="./static/images/acc_vs_train_masking_ratio.png">
-                  <h5 class="subtitle has-text-centered">
-                    <font size="-0.7">
-                      <span style="font-weight:normal">
-                        Comparison between using the true reference view and
-                        replacing the reference view with a zero image for
-                        different training masking ratios. The left plot shows
-                        the accuracy of the model trained with approximately 60%
-                        of shuffled-view patches masked out, while the right
-                        plot shows the accuracy of the model trained with
-                        approximately 15% masking.
-                      </span>
-                    </font>
-                  </h5>
-                </div>
-              </div>
-            </div>
-          <p> 
-            The figure shows that the performance curves with and without
-            zeroing the reference view are closer for <em>model-15%</em>. We
-            further evaluate both models on the Tiny Dataset and observe that
-            <em>model-15%</em> achieves approximately 91% accuracy on swapped
-            patches, whereas <em>model-60%</em> achieves approximately 98%
-            accuracy. 
-          </p> 
-          
-          <p> 
-            These results suggest that the model trained with 15% masking relies
-            less on the reference view to solve the task. This supports the
-            effectiveness of our strategy of masking a substantial portion of
-            shuffled-view patches during training to encourage the model to
-            utilize the reference view. 
-          </p>
             
           </div>
         </div>
@@ -1354,23 +1409,29 @@
           <div class="content">
             <h6 class="title is-6">Individual Contributions</h6>
             <p>
-              V.S. rendered and sharded the dataset, designed and implemented
-              Gator and Jigsaw, their training and evaluation scripts, and the
-              jigsaw losses. He trained the ViT-Small Jigsaw, Gator, CroCo, and
-              MAE models, as well as the ViT-Tiny Gator models for the ablation
-              studies. He implemented most of the Relative Pose Regression
-              pipeline, designed the second-view utilization study and its Tiny
-              Dataset, created the Hugging Face demo, and contributed equally to
-              the website.
-              <br>
-              G.P. implemented the pipeline for finetuning the models on Optical Flow. He finetuned
-              all models (MAE, One-view jigsaw, CroCo and Gator) on the Optical Flow task, 
-              and contributed equally to the website.
-              <br>
+              V.S. rendered the dataset and sharded it to improve GPU
+              utilization. V.S. designed and implemented the Gator and Jigsaw
+              models, their pre-training and evaluation scripts, and the jigsaw
+              objectives used in the project. V.S. pre-trained the ViT-Small
+              Jigsaw, Gator, CroCo, and MAE models, and conducted the ablation
+              studies evaluating the jigsaw objectives and the effectiveness of
+              masking shuffled-view patches during pre-training. V.S. also
+              implemented most of the Relative Pose Regression pipeline,
+              designed and implemented the second-view utilization study and its
+              Tiny Dataset, explored the model's attention maps, and created the
+              Hugging Face demo.
+            </br>
+              G.P. implemented the pipeline for finetuning the models on Optical Flow. G.P. finetuned
+              all models (MAE, Jigsaw, CroCo and Gator) on the Optical Flow task.
+            </br>
               S.B. implemented part of the Relative Pose Regression pipeline,
-              finetuned some of the models (MAE, One-view jigsaw, CroCo) on the Relative Pose task
-              and contributed equally to the website. She conducted experiments with image matching 
-              finetuning, but results were discarded due to implementation issues.
+              finetuned MAE, CroCo, Jigsaw models on the Relative Pose Regression task.
+              She conducted experiments with image matching finetuning, but results were discarded due to implementation issues.
+            </br>
+              R.M. implemented classification scripts and finetuned MAE, Jigsaw,
+              CroCo and Gator for classification.
+            </br>
+              All contributed equally to writing the reports, preparing the presentation, and creating the website.
             </p>
             <p><em>
                 This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
