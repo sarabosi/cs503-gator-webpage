@@ -302,23 +302,37 @@
         <div class="column is-full-width">
           <h2 class="title is-3" id="related-work">II. Related Works</h2>
           <div class="content has-text-justified">
-            <p>
-              Jigsaw puzzle solving has been widely studied as a pretext task for representation learning.
-              Prior work shows that predicting the correct arrangement of shuffled patches improves 
-              spatial reasoning and benefits tasks such as image classification and video 
-              understanding <a href="https://arxiv.org/abs/1603.09246">[6]</a>, <a href="https://arxiv.org/abs/2207.11971">[7]</a>, <a href="https://arxiv.org/abs/1808.07507">[8]</a>.
-              However, prior methods are typically single-view and not designed for cross-view 3D geometric learning.
-              The work most closely related to ours is CroCo <a href="https://arxiv.org/abs/2210.10716">[2]</a>, 
-              which performs cross-view masked reconstruction for 3D vision. 
-              CroCo receives two views of the same scene: one clean reference image and one partially masked image. 
-              Using an encoder-decoder architecture, it reconstructs the missing patches of the masked image by leveraging 
-              information from both views. 
-              This cross-view reconstruction objective encourages the model to learn geometric correspondences 
-              and scene structure. In contrast, our method replaces reconstruction with a two-view jigsaw objective,
-              using patch-order prediction as the pretraining signal.
+                <p>
+                  Jigsaw-based pretraining uses patch reordering as a self-supervised signal.
+                  Early jigsaw methods showed that predicting the correct arrangement of shuffled
+                  image patches can encourage spatial reasoning and improve visual representations
+                  <a href="https://arxiv.org/abs/1603.09246">[6]</a>. 
+                  Jigsaw puzzle solving has been widely studied as a self-supervised pretext task 
+                  for visual representation learning. The main idea is to shuffle image patches and 
+                  train the model to recover their original spatial arrangement, encouraging the 
+                  representation to capture spatial layout rather than only local appearance. 
+                  This idea has been explored in both convolutional models and Vision Transformers, 
+                  including Jigsaw-ViT, where the patch-based structure of ViTs makes the jigsaw 
+                  objective a natural fit <a href="https://arxiv.org/abs/1603.09246">[5]</a>, 
+                  <a href="https://arxiv.org/abs/2207.11971">[6]</a>. However, these methods 
+                  are mainly single-view: they learn spatial structure within one image, but 
+                  they are not explicitly trained to reason across two different views of 
+                  the same scene.
+                </p>
 
-
-            </p>
+                <p>
+                  Cross-view pretraining is especially important for 3D vision, where downstream 
+                  tasks often require geometric reasoning between image pairs. CroCo is the closest 
+                  work to ours in this setting <a href="https://arxiv.org/abs/2210.10716">[2]</a>. 
+                  It receives a clean reference image and a masked target image, and learns to 
+                  reconstruct the missing target patches by using information from both views. 
+                  This objective encourages the model to learn scene structure and cross-view 
+                  correspondences. Gator follows the same cross-view motivation, but replaces 
+                  masked pixel reconstruction with patch-order prediction. In this way, the model 
+                  is trained to use the reference view to solve a jigsaw task, focusing the 
+                  pretraining signal on spatial organization and correspondence reasoning rather 
+                  than low-level pixel recovery.
+                </p>
           </div>
         </div>
       </div>
@@ -1186,12 +1200,6 @@
                 representations by solving jigsaw puzzles,” 2017. [Online].
                 Available: <a href="https://arxiv.org/abs/1603.09246">https://arxiv.org/abs/1603.09246</a>
               </li>
-
-              <li>
-                M. Noroozi and P. Favaro, “Unsupervised learning of visual
-                representations by solving jigsaw puzzles,” 2017. [Online].
-                Available: https://arxiv.org/abs/1603.09246
-              </li>
               
               <li>
                 Y. Chen, X. Shen, Y. Liu, Q. Tao, and J. A. K. Suykens,
@@ -1359,7 +1367,10 @@
               all models (MAE, One-view jigsaw, CroCo and Gator) on the Optical Flow task, 
               and contributed equally to the website.
               <br>
-              S.B. finetuned the MAE model on the Relative Pose Regression task and contributed equally to the website.
+              S.B. implemented part of the Relative Pose Regression pipeline,
+              finetuned some of the models (MAE, One-view jigsaw, CroCo) on the Relative Pose task
+              and contributed equally to the website. She conducted experiments with image matching 
+              finetuning, but results were discarded due to implementation issues.
             </p>
             <p><em>
                 This website is based on the <a href="https://github.com/nerfies/nerfies.github.io"
