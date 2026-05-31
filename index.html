@@ -263,26 +263,22 @@
           <div class="content has-text-justified">
             <p>
 
-              Self-supervised learning has become a standard paradigm for learning visual representations 
-              from unlabeled data. Methods such as DINO <a href="https://arxiv.org/abs/2104.14294">[3]</a> and MAE <a href="https://arxiv.org/abs/2111.06377">[4]</a> 
+              Self-supervised learning has become a standard paradigm for learning visual representations from unlabeled data. Methods such as DINO <a href="https://arxiv.org/abs/2104.14294">[3]</a> and MAE <a href="https://arxiv.org/abs/2111.06377">[4]</a> 
               achieve strong results through self-distillation and masked image reconstruction, respectively. 
-              Masked modeling has further been extended to two-view pretraining with CroCo <a href="https://doi.org/10.48550/arXiv.2210.10716" >[2]</a>, 
-              which shows strong performance on 3D vision tasks. 
+              Masked modeling has further been extended to two-view pretraining with CroCo <a href="https://doi.org/10.48550/arXiv.2210.10716" >[2]</a>, and even multi-view modeling by MuM <a href="https://arxiv.org/pdf/2511.17309">[11]</a>, both exhibting strong performance on 3D vision tasks. 
             </p>
             <p>  
-              Another successful self-supervised paradigm is jigsaw puzzle solving <a href="https://arxiv.org/abs/1603.09246">[5]</a>.
-              Yet, its use as a pretraining method for multi-view downstream tasks remains largely unexplored.
-              In this work, we investigate whether a two-view jigsaw objective can serve as an effective pretraining strategy 
-              for 3D tasks such as image matching and optical flow. 
+              Another successful self-supervised paradigm for one-view models is jigsaw puzzle solving <a href="https://arxiv.org/abs/1603.09246">[5]</a>, where the pretraining goal consists in reordering shuffled patches of the input image. This method has proven effective for several applications, like video understanding <a href="https://arxiv.org/abs/1808.07507">[8]</a> and multimodal LLMs <a href="https://arxiv.org/abs/2509.25190">[10]</a>  Yet, its use as a pretraining method for multi-view modeling remains largely unexplored.
+              In this work, we investigate whether a two-view jigsaw objective can serve as an effective pretraining strategy for 3D tasks such as image matching and optical flow. 
             <p>
-              In this work we present Gator, a jigsaw based pretraining objective for multi-view models.
+              In this work we present Gator, a new self-supervised method based on jigsaw solving for multi-view models.
               During pretraining, the model recieves two views of the same scene: 
               we keep one view unchanged and shuffle the patches of the other. 
               The model is trained to recover the correct patch arrangement by exploiting the reference view, 
               thereby encouraging the learning of spatial structure and cross-view correspondences. 
               Our approach is not formulated as pixel-level prediction: instead, it formulates the pretraining objective as 
               a patch reordering problem. This objective still requires 3D understanding to be solved,
-              but without wasting parameters for low-level detail reconstruction such as textures.
+              but without using model parameters for low-level detail reconstruction such as textures.
               We also compare our model after finetuning on several downstream tasks against one-view 
               and multi-view methods, showing that Gator achieves competitive results in 3D vision downstream tasks.
             </p>
@@ -1175,15 +1171,33 @@
               <li>
                 Y. Chen, X. Shen, Y. Liu, Q. Tao, and J. A. K. Suykens,
                 “Jigsaw-vit: Learning jigsaw puzzles in vision transformer,”
-                2023. [Online]. Available: https://arxiv.org/abs/2207.11971
+                2023. [Online]. Available: <a href="https://arxiv.org/abs/2207.11971">https://arxiv.org/abs/2207.11971</a>
               </li>
               
               <li>
                 U. Ahsan, R. Madhok, and I. Essa, “Video jigsaw:
                 Unsupervised learning of spatiotemporal context for video
-                action recognition,” 2018. [Online]. Available: https://arxiv.
-                org/abs/1808.07507
+                action recognition,” 2018. [Online]. Available: <a href="https://arxiv.
+                org/abs/1808.07507">https://arxiv.org/abs/1808.07507</a>
               </li>
+              <li>
+                Z. Song, Z. Hu, and R. Hong, “Grid jigsaw representation
+                with clip: a new perspective on image clustering,” Multimedia
+                Systems, vol. 31, no. 2, Feb. 2025. [Online]. Available:
+                <a href="http://dx.doi.org/10.1007/s00530-025-01703-x">http://dx.doi.org/10.1007/s00530-025-01703-x</a>
+              </li>
+              <li>
+                P. Wu, Y. Zhang, H. Diao, B. Li, L. Lu, and Z. Liu,
+                “Visual jigsaw post-training improves mllms,” 2025. [Online].
+                Available: <a href="https://arxiv.org/abs/2509.25190">https://arxiv.org/abs/2509.25190</a>
+              </li>
+              
+              <li>
+                D. Nordstr¨om, J. Edstedt, F. Kahl, and G. B¨okman, “Mum:
+                Multi-view masked image modeling for 3d vision,” 2025.
+                [Online]. Available: <a href="https://arxiv.org/abs/2511.17309">https://arxiv.org/abs/2511.17309</a>
+              </li>
+
               <!-- Add more references as needed -->
             </ol>
           </div>
