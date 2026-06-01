@@ -160,7 +160,7 @@ body {
     position: relative;
     width: 100%; 
     height: 300px; /* Adjust this height to match whatever looks best on your page */
-    background-image: url('../images/tiny_dataset.png'); 
+    background-image: url('../images/tiny_dataset.jpg'); 
     background-repeat: repeat-x;
     background-position: 0px 0px;
     background-size: auto 100%;
